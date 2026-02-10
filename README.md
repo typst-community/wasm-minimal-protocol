@@ -38,6 +38,7 @@ See the example for your language:
 - [Zig](examples/hello_zig/)
 - [C](examples/hello_c/)
 - [Go](examples/hello_go/)
+- [Haskell](examples/hello_haskell/)
 
 If you have all the required dependencies, you may build all examples by running `cargo test`.
 
@@ -49,4 +50,4 @@ The runtime used by typst do not allow the plugin to import any function (beside
 
 To get around that, you can use [wasi-stub](./crates/wasi-stub). It will detect all WASI-related imports, and replace them by stubs that do nothing.
 
-If you are compiling C code with `emcc`, stubbing is almost certainly required.
+If you are compiling C code with `emcc`, stubbing is almost certainly required. Haskell code needs to be stubbed with a different tool, as documented in its example. 
