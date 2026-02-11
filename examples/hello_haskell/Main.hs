@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ParallelListComp #-}
@@ -10,22 +9,18 @@ import Data.ByteString qualified as BS
 import Foreign
 import GHC.Exts
 
-#if defined(wasi_HOST_OS)
+-- These two foreign imports are mandatory for interacting with Typst,
+--  and they shouldn't be modified. 
 foreign import ccall "wasm_minimal_protocol_write_args_to_buffer"
   wasm_minimal_protocol_write_args_to_buffer :: Addr# -> IO ()
 
 foreign import ccall "wasm_minimal_protocol_send_result_to_host"
   wasm_minimal_protocol_send_result_to_host :: Addr# -> Int# -> IO ()
-#else
-wasm_minimal_protocol_write_args_to_buffer :: Addr# -> IO ()
-wasm_minimal_protocol_write_args_to_buffer = 
-  error "Word size is not 32, replacing wasm_minimal_protocol function with stub"
 
-wasm_minimal_protocol_send_result_to_host :: Addr# -> Int# -> IO ()
-wasm_minimal_protocol_send_result_to_host = 
-  error "Word size is not 32, replacing wasm_minimal_protocol function with stub"
-#endif
-
+-- Wrapper functions for the two functions for interacting with Typst. 
+-- These are really just convenient wrappers, and you can directly interact
+--  with Typst using the two foreign import functions above, if you want. 
+-- However you will just end up reimplementing these two functions. 
 createBuffer :: [Int] -> IO [ByteString]
 createBuffer lens = do
   let totalLen = sum lens
@@ -38,6 +33,20 @@ sendResultToHost :: ByteString -> IO ()
 sendResultToHost bs =
   BS.useAsCStringLen bs $ \(Ptr addr#, I# len#) ->
     wasm_minimal_protocol_send_result_to_host addr# len#
+
+-- Implementation of concrete plugin functions
+-- 
+-- To implement a function in the Typst plugin, you need to do three things: 
+--  1. Implement the Haskell function. It should take a number of `Int` parameters, 
+--      and return `IO Int`. 
+--  2. Export the Haskell function using a `foreign export ccall`. 
+--  3. Be explicitly exported using command line arguments when building. 
+-- Additionally:
+--  4. `hs_init_wrapped` must be exported using command line arguments when building.
+-- 
+-- In our example, 1 and 2 are implemented in pairs in this Haskell file. 
+-- 3 and 4 appears in the build script `build.sh`, as in the arguments: 
+--   -optl-Wl,--export=hs_init,--export=hs_exit,--export=hs_init_wrapped,--export=hello,--export=double_it,--export=concatenate,--export=shuffle,--export=returns_ok,--export=will_panic,--export=returns_err
 
 foreign export ccall "hello"
   hello :: IO Int
@@ -90,5 +99,6 @@ returnsErr = do
   sendResultToHost "This is an `Err`"
   return 1
 
+-- The `main` function here is just a placeholder to make GHC happy. 
 main :: IO ()
 main = return ()

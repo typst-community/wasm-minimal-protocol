@@ -1,2 +1,2 @@
 wasm32-wasi-ghc Main.hs typ_wrapper.c -o hello_raw.wasm -optc-g -optl-g -optl-Xlinker -optl--allow-undefined -optl-Wl,--export=hs_init,--export=hs_exit,--export=hs_init_wrapped,--export=hello,--export=double_it,--export=concatenate,--export=shuffle,--export=returns_ok,--export=will_panic,--export=returns_err
-python3 replace_wasi.py hello_raw.wasm hello.wasm
+wasi-stub --return-value 0 hello_raw.wasm -o hello.wasm

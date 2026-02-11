@@ -1,6 +1,5 @@
 #{
-  let p0 = plugin("./hello.wasm")
-  let p = plugin.transition(p0.hs_init_wrapped)
+  let p = plugin.transition(plugin("./hello.wasm").hs_init_wrapped)
 
   assert.eq(str(p.hello()), "Hello from wasm!!!")
   assert.eq(str(p.double_it(bytes("abc"))), "abcabc")
