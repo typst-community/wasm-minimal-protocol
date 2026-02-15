@@ -13,36 +13,51 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Setup cache
+
+      - name: Cache Emscripten for hello_c
         uses: actions/cache@v4
         with:
           path: ${{env.EM_CACHE_FOLDER}}
-          key: ${{env.EM_VERSION}}-${{ runner.os }}
-      - uses: mymindstorm/setup-emsdk@v14
+          key: emsdk-${{env.EM_VERSION}}-${{ runner.os }}
+      - name: Install Emscripten for hello_c
+        uses: mymindstorm/setup-emsdk@v14
         with:
           version: ${{env.EM_VERSION}}
           actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
-      - name: Cache TinyGo
+
+      - name: Cache TinyGo for hello_go
         uses: actions/cache@v4
         with:
           path: tinygo_0.37.0_amd64.deb
           key: tinygo-0.37.0-${{ runner.os }}
-      - name: Install TinyGo
+      - name: Install TinyGo for hello_go
         run: |
           if [ ! -f tinygo_0.37.0_amd64.deb ]; then
             wget https://github.com/tinygo-org/tinygo/releases/download/v0.37.0/tinygo_0.37.0_amd64.deb
           fi
           sudo dpkg -i tinygo_0.37.0_amd64.deb
           export PATH=$PATH:/usr/local/bin
+
+      - name: Install Zig for hello_zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.13.0
+
+      - name: Cache GHC WebAssembly backend for hello_haskell
+        uses: actions/cache@v4
+        with:
+          path: ~/.ghc-wasm
+          key: ghc-wasm-meta-${{ runner.os }}
+      - name: Install GHC WebAssembly backend for hello_haskell
+        run: |
+          if [ ! -d ~/.ghc-wasm ]; then
+            curl https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta/-/raw/master/bootstrap.sh | sh
+          fi
+          ~/.ghc-wasm/add_to_github_path.sh
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown, wasm32-wasip1
-      - uses: mlugg/setup-zig@v2
-        with:
-          version: 0.13.0
-      - uses: typst-community/setup-typst@v4
-        with:
-          typst-version: 0.13.1
       - name: Cache Rust
         uses: actions/cache@v4
         with:
@@ -50,4 +65,9 @@ jobs:
             ~/.cargo
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - uses: typst-community/setup-typst@v4
+        with:
+          typst-version: 0.13.1
+
       - run: ./.githooks/pre-push

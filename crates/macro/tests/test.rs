@@ -3,11 +3,13 @@ use std::{
     process::Command,
 };
 
-fn wasi_stub(path: PathBuf) {
+fn wasi_stub_with_args(path: PathBuf, extra_args: &[&str]) {
     let path = path.canonicalize().unwrap();
 
     let wasi_stub = Command::new("cargo")
         .arg("run")
+        .arg("--")
+        .args(extra_args)
         .arg(&path)
         .arg("-o")
         .arg(&path)
@@ -17,6 +19,10 @@ fn wasi_stub(path: PathBuf) {
     if !wasi_stub.success() {
         panic!("wasi-stub failed");
     }
+}
+
+fn wasi_stub(path: PathBuf) {
+    wasi_stub_with_args(path, &[]);
 }
 
 fn typst_compile(path: &Path) {
@@ -178,5 +184,56 @@ fn test_go() {
         panic!("Compiling with tinygo for wasip1 failed");
     }
     wasi_stub(dir_path.join("hello.wasm"));
+    typst_compile(dir_path);
+}
+
+#[test]
+fn test_haskell() {
+    let dir_path = Path::new(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../examples/hello_haskell"
+    ));
+
+    let export_flags = {
+        let mut exports = vec!["hs_init", "hs_exit", "hs_init_wrapped"];
+        // Extract exported function names from Main.hs
+        let main_hs = std::fs::read_to_string(dir_path.join("Main.hs")).unwrap();
+        for line in main_hs.lines() {
+            if let Some(func_name) =
+                line.trim()
+                    .strip_prefix("foreign export ccall")
+                    .and_then(|f| {
+                        f.trim()
+                            .strip_prefix("\"")
+                            .and_then(|s| s.strip_suffix("\""))
+                    })
+            {
+                exports.push(func_name);
+            }
+        }
+        exports
+            .iter()
+            .map(|e| format!("--export={}", e))
+            .collect::<Vec<_>>()
+            .join(",")
+    };
+
+    let build_haskell = Command::new("wasm32-wasi-ghc")
+        .arg("Main.hs")
+        .arg("typ_wrapper.c")
+        .arg("-o")
+        .arg("hello.wasm")
+        .arg("-optc-g")
+        .arg("-optl-g")
+        .arg("-optl-Xlinker")
+        .arg("-optl--allow-undefined")
+        .arg(format!("-optl-Wl,{export_flags}"))
+        .current_dir(dir_path)
+        .status()
+        .unwrap();
+    if !build_haskell.success() {
+        panic!("Compiling with GHC WebAssembly backend failed");
+    }
+    wasi_stub_with_args(dir_path.join("hello.wasm"), &["--return-value", "0"]);
     typst_compile(dir_path);
 }
