@@ -1,3 +1,7 @@
+//! Minimum supported Typst version: 0.14.0
+//! Before that, SIMD was not supported by the WebAssembly runtime, but WASM files compiled from Haskell always require SIMD.
+//! See https://github.com/typst/typst/issues/6679 for further details.
+
 #{
   let p = plugin.transition(plugin("./hello.wasm").hs_init_wrapped)
 

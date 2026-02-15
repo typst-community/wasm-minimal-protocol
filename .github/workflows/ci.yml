@@ -45,6 +45,18 @@ jobs:
         with:
           version: 0.13.0
 
+      - name: Cache GHC WebAssembly backend for hello_haskell
+        uses: actions/cache@v4
+        with:
+          path: ~/.ghc-wasm
+          key: ghc-wasm-meta-${{ runner.os }}
+      - name: Install GHC WebAssembly backend for hello_haskell
+        run: |
+          if [ ! -d ~/.ghc-wasm ]; then
+            curl https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta/-/raw/master/bootstrap.sh | sh
+          fi
+          ~/.ghc-wasm/add_to_github_path.sh
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown, wasm32-wasip1

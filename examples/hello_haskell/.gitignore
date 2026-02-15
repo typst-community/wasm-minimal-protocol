@@ -1,7 +1,6 @@
 Main.hi
 Main.o
 Main_stub.h
-hello_raw.wasm
 typ_wrapper.o
 
 hello.wasm
