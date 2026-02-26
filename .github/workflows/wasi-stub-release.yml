@@ -2,8 +2,6 @@ name: Release `wasi-stub`
 
 on:
   workflow_dispatch:
-    branches:
-      - master
     inputs:
       version:
         description: "Version number"
