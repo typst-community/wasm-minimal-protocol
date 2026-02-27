@@ -49,8 +49,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.ghc-wasm
-          key: ghc-wasm-meta-${{ runner.os }}
+          key: ghc-wasm-meta-9.14-${{ runner.os }}
       - name: Install GHC WebAssembly backend for hello_haskell
+        env:
+          FLAVOUR: "9.14"
         run: |
           if [ ! -d ~/.ghc-wasm ]; then
             curl https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta/-/raw/master/bootstrap.sh | sh
