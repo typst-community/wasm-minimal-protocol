@@ -4,9 +4,11 @@ This is a bare-bone Typst plugin, written in Haskell.
 
 ## Compile
 
-To compile this example, you need the GHC WebAssembly backend, as documented in [this link](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/wasm.html) and available from [this link](https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta).
+To compile this example, you will need to [install ghc-wasm-meta](https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta). Further details can be found in [15. Using the GHC WebAssembly backend — Glasgow Haskell Compiler User's Guide](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/wasm.html).
 
-The build script `build.sh` is made for Linux. Make sure that the GHC executable `wasm32-wasi-ghc` and the utility [`wasi-stub`](../../crates/wasi-stub) is on your `PATH`. Then, simply run the build script `build.sh`.
+The build script `build.sh` is made only for Linux[^linux-only]. Make sure that the GHC executable `wasm32-wasi-ghc` and the utility [`wasi-stub`](../../crates/wasi-stub) is on your `PATH`. Then, simply run the build script `build.sh`.
+
+[^linux-only]: The support status of GHC WebAssembly backend on Windows is unclear. Feedback and contributions are welcome.
 
 ### Stubbing
 
