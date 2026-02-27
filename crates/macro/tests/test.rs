@@ -1,7 +1,11 @@
+use regex::Regex;
+use semver::Version;
 use std::{
     path::{Path, PathBuf},
     process::Command,
+    sync::LazyLock,
 };
+use which::{which, which_re};
 
 fn wasi_stub(path: PathBuf) {
     let path = path.canonicalize().unwrap();
@@ -19,34 +23,76 @@ fn wasi_stub(path: PathBuf) {
     }
 }
 
+/// Compile `hello.typ` in `path` with all Typst compilers that declared to be compatible.
+/// Panics if the compilation fails or there is no compatible Typst compiler available.
 fn typst_compile(path: &Path) {
-    let typst_version = Command::new("typst").arg("--version").output().unwrap();
-    if !typst_version.status.success() {
-        panic!("typst --version failed");
-    }
-    let version_string = match String::from_utf8(typst_version.stdout) {
-        Ok(s) => s,
-        Err(err) => panic!("failed to parse typst version: {err}"),
-    };
-    if let Some(s) = version_string.strip_prefix("typst ") {
-        let version = s.split('.').collect::<Vec<_>>();
-        let [major, minor, _] = version.as_slice() else {
-            panic!("failed to parse version string {version_string}")
-        };
-        if !(major.parse::<u64>().unwrap() >= 1 || minor.parse::<u64>().unwrap() >= 8) {
-            panic!("The typst version is too low for plugin: you need at least 0.8.0");
-        }
-    }
+    // Get all available Typst compilers
+    static TYPST_COMPILERS: LazyLock<Vec<(PathBuf, Version)>> = LazyLock::new(|| {
+        std::iter::once(which("typst").expect("the latest typst compiler should be available"))
+            .chain(
+                which_re(Regex::new("^typst-.*").expect("a valid regex"))
+                    .expect("which_re should work"),
+            )
+            .map(|executable| {
+                let typst_version = Command::new(&executable).arg("--version").output().unwrap();
+                if !typst_version.status.success() {
+                    panic!("{executable:?} --version failed");
+                }
+                let version_output = match String::from_utf8(typst_version.stdout) {
+                    Ok(s) => s,
+                    Err(err) => panic!("failed to parse typst version: {err}"),
+                };
+                let version = version_output
+                    .split_whitespace()
+                    .nth(1)
+                    .and_then(|v| Version::parse(v).ok())
+                    .expect("version output should be in the format `typst X.Y.Z (COMMIT_HASH)`");
+                (executable, version)
+            })
+            .collect()
+    });
 
     let path = PathBuf::from(path).canonicalize().unwrap();
-    let typst_compile = Command::new("typst")
-        .arg("compile")
-        .arg("hello.typ")
-        .current_dir(path)
-        .status()
-        .unwrap();
-    if !typst_compile.success() {
-        panic!("typst compile failed");
+
+    // Parse minimum supported Typst version from `hello.typ`
+    let min_compiler = std::fs::read_to_string(path.join("hello.typ"))
+        .expect("should read hello.typ")
+        .lines()
+        .next()
+        .and_then(|line| line.strip_prefix("//! Minimum supported Typst version: "))
+        .and_then(|v| Version::parse(v).ok())
+        .expect(
+            "The first line of `hello.typ` should document the minimum supported Typst version",
+        );
+
+    // Filter compatible compilers
+    let compatible_compilers: Vec<_> = TYPST_COMPILERS
+        .iter()
+        .filter_map(|(compiler, version)| (*version >= min_compiler).then_some(compiler))
+        .collect();
+    if compatible_compilers.is_empty() {
+        panic!("No compatible Typst compiler found. Minimum supported version is {min_compiler}, but found: {TYPST_COMPILERS:?}");
+    }
+
+    // Call compilers
+    let failed: Vec<_> = compatible_compilers
+        .iter()
+        .filter_map(|compiler| {
+            let typst_compile = Command::new(compiler)
+                .arg("compile")
+                .arg("hello.typ")
+                .current_dir(&path)
+                .status();
+
+            if typst_compile.is_ok_and(|status| status.success()) {
+                None
+            } else {
+                Some(format!("{compiler:?} compile failed"))
+            }
+        })
+        .collect();
+    if !failed.is_empty() {
+        panic!("Compilation failed: {failed:#?}");
     }
 }
 

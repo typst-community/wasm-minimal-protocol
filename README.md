@@ -2,7 +2,7 @@
 
 A minimal protocol to write [typst plugins](https://typst.app/docs/reference/foundations/plugin/).
 
-Note that plugins require typst version `0.8` or more.
+Note that plugins require typst version `0.8.0` or later.
 
 ## You want to write a plugin
 

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 license-file = "LICENSE"
 description = "Typst plugin helper macro library"
-repository = "https://github.com/astrale-sharp/wasm-minimal-protocol"
+repository = "https://github.com/typst-community/wasm-minimal-protocol"
 
 [lib]
 proc-macro = true
@@ -13,3 +13,8 @@ proc-macro = true
 proc-macro2 = "1.0.36"
 quote = "1.0.15"
 venial = "0.5.0"
+
+[dev-dependencies]
+regex = "1.12.3"
+semver = "1.0"
+which = { version = "8.0.0", features = ["regex"] }

@@ -1,3 +1,6 @@
+//! Minimum supported Typst version: 0.8.0
+//! Before that, WASM plugin was not supported.
+
 #{
   let p = plugin("./hello.wasm")
 

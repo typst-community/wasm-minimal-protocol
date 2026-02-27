@@ -1,3 +1,6 @@
+//! Minimum supported Typst version: 0.13.0
+//! Before that, decoding CBOR used a different function.
+
 #{
   let p = plugin("./hello.wasm")
 

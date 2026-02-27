@@ -107,7 +107,7 @@ pub fn initiate_protocol(stream: TokenStream) -> TokenStream {
 /// The return type of the function should be `Vec<u8>` or `Result<Vec<u8>, E>` where
 /// `E: ToString`.
 ///
-/// If the function return `Vec<u8>`, it will be implicitely wrapped in `Ok`.
+/// If the function return `Vec<u8>`, it will be implicitly wrapped in `Ok`.
 ///
 /// # Example
 ///
