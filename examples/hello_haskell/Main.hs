@@ -45,7 +45,7 @@ sendResultToHost bs =
 --  4. `hs_init_wrapped` must be exported using command line arguments when building.
 --
 -- In our example, 1 and 2 are implemented in pairs in this Haskell file.
--- 3 and 4 appears in the build script `build.sh`, as in the arguments:
+-- 3 and 4 appear in the build command in README, as in the arguments:
 --   -optl-Wl,--export=hs_init,--export=hs_exit,--export=hs_init_wrapped,--export=hello,--export=double_it,--export=concatenate,--export=shuffle,--export=returns_ok,--export=will_panic,--export=returns_err
 
 foreign export ccall "hello"

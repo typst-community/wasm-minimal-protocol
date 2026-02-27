@@ -5,7 +5,7 @@
  *  is mandatory. They are not redundant, for otherwise the compiler won't properly import
  *  these functions from correct WASM modules.
  *
- * `hs_init()` fron <HsFFI.h> returns `void`, while Typst plugin requires a function returning
+ * `hs_init()` from <HsFFI.h> returns `void`, while Typst plugin requires a function returning
  *  `int32_t`. `hs_init()` also requires two arguments. Hence the wrapper `hs_init_wrapped()`.
  */
 #include <stdint.h>
