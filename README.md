@@ -50,4 +50,4 @@ The runtime used by typst do not allow the plugin to import any function (beside
 
 To get around that, you can use [wasi-stub](./crates/wasi-stub). It will detect all WASI-related imports, and replace them by stubs that do nothing.
 
-If you are compiling C code with `emcc`, or compiling Haskell code, stubbing is almost certainly required. 
+If you are compiling C code with `emcc`, or compiling Haskell code, stubbing is almost certainly required.
