@@ -241,7 +241,7 @@ fn test_haskell() {
     ));
 
     let export_flags = {
-        let mut exports = vec!["hs_init", "hs_exit", "hs_init_wrapped"];
+        let mut exports = vec!["hs_init_wrapped"];
         // Extract exported function names from Main.hs
         let main_hs = std::fs::read_to_string(dir_path.join("Main.hs")).unwrap();
         for line in main_hs.lines() {
@@ -269,10 +269,6 @@ fn test_haskell() {
         .arg("typ_wrapper.c")
         .arg("-o")
         .arg("hello.wasm")
-        .arg("-optc-g")
-        .arg("-optl-g")
-        .arg("-optl-Xlinker")
-        .arg("-optl--allow-undefined")
         .arg(format!("-optl-Wl,{export_flags}"))
         .current_dir(dir_path)
         .status()

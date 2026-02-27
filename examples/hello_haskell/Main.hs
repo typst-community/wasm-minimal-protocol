@@ -46,7 +46,7 @@ sendResultToHost bs =
 --
 -- In our example, 1 and 2 are implemented in pairs in this Haskell file.
 -- 3 and 4 appear in the build command in README, as in the arguments:
---   -optl-Wl,--export=hs_init,--export=hs_exit,--export=hs_init_wrapped,--export=hello,--export=double_it,--export=concatenate,--export=shuffle,--export=returns_ok,--export=will_panic,--export=returns_err
+--   -optl-Wl,--export=hs_init_wrapped,--export=hello,--export=double_it,--export=concatenate,--export=shuffle,--export=returns_ok,--export=will_panic,--export=returns_err
 
 foreign export ccall "hello"
   hello :: IO Int
