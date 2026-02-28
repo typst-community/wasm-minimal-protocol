@@ -19,9 +19,12 @@ pub struct ShouldStub {
 impl Default for ShouldStub {
     fn default() -> Self {
         Self {
-            modules: [(String::from("wasi_snapshot_preview1"), FunctionsToStub::All)]
-                .into_iter()
-                .collect(),
+            modules: [
+                (String::from("wasi_snapshot_preview1"), FunctionsToStub::All),
+                (String::from("__wbindgen_placeholder__"), FunctionsToStub::All),
+            ]
+            .into_iter()
+            .collect(),
         }
     }
 }
