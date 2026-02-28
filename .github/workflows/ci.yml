@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Cache Emscripten for hello_c
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{env.EM_CACHE_FOLDER}}
           key: emsdk-${{env.EM_VERSION}}-${{ runner.os }}
@@ -28,7 +28,7 @@ jobs:
           actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
 
       - name: Cache TinyGo for hello_go
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: tinygo_0.37.0_amd64.deb
           key: tinygo-0.37.0-${{ runner.os }}
@@ -46,7 +46,7 @@ jobs:
           version: 0.13.0
 
       - name: Cache GHC WebAssembly backend for hello_haskell
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.ghc-wasm
           key: ghc-wasm-meta-9.14-${{ runner.os }}
@@ -63,7 +63,7 @@ jobs:
         with:
           targets: wasm32-unknown-unknown, wasm32-wasip1
       - name: Cache Rust
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo
