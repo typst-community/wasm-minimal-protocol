@@ -233,14 +233,12 @@ pub fn stub_wasi_functions(
         let instructions: Vec<_> = results
             .iter()
             .map(|val_type| {
-                // Weird value, hopefully this makes it easier to track usage of these stubbed functions.
+                // Return weird values as the expected types, hopefully this makes it easier to track usage of these stubbed functions.
                 match val_type {
                     ValType::I32 => Instruction::I32Const(return_value as i32),
                     ValType::I64 => Instruction::I64Const(return_value as i64),
-                    ValType::F32 => Instruction::F32Const(wast::token::Float32 {
-                        bits: return_value as u32,
-                    }),
-                    ValType::F64 => Instruction::F64Const(wast::token::Float64 {
+                    ValType::F32 => Instruction::F32Const(wast::token::F32 { bits: return_value }),
+                    ValType::F64 => Instruction::F64Const(wast::token::F64 {
                         bits: return_value as u64,
                     }),
                     _ => panic!("Unsupported stub return type {:?}", val_type),
