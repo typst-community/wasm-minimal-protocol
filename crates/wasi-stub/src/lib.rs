@@ -71,8 +71,8 @@ fn static_name_annotation(name: Option<NameAnnotation>) -> Option<NameAnnotation
 }
 fn static_val_type(val_type: &ValType) -> ValType<'static> {
     // FIXME: This long match dance is _only_ to make the lifetime of ty 'static. A lot of things have to go through this dance (see the `static_*` function...)
-    // Instead, we should write the new function here, in place, by replacing `field`. This is currently done in the for loop at the veryend of this function.
-    // THEN, at the end of the loop, swap every function in it's right place. No need to do more !
+    // Instead, we should write the new function here, in place, by replacing `field`. This is currently done in the for loop at the very end of this function.
+    // THEN, at the end of the loop, swap every function in its right place. No need to do more !
     match val_type {
         ValType::I32 => ValType::I32,
         ValType::I64 => ValType::I64,
