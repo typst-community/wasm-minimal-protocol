@@ -286,3 +286,73 @@ where
     }
 }
 pub type Result<T> = std::result::Result<T, Error>;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Encode a WAT text string into a WASM binary.
+    fn wat_to_wasm(wat_text: &str) -> Vec<u8> {
+        let buf = wast::parser::ParseBuffer::new(wat_text).unwrap();
+        let mut module: Wat = wast::parser::parse(&buf).unwrap();
+        match &mut module {
+            Wat::Module(m) => m.encode().unwrap(),
+            _ => panic!("expected a module"),
+        }
+    }
+
+    /// Build a minimal WAT module that imports one function from `module_name`
+    /// and has a single exported function that calls it.
+    fn make_wat_with_import(module_name: &str, func_name: &str) -> String {
+        format!(
+            r#"(module
+                (type (func (param i32)))
+                (import "{module_name}" "{func_name}" (func (type 0)))
+                (func (export "test")
+                    i32.const 0
+                    call 0
+                )
+            )"#
+        )
+    }
+
+    fn output_wat(binary: &[u8]) -> String {
+        wasmprinter::print_bytes(binary).unwrap()
+    }
+
+    #[test]
+    fn test_wasi_snapshot_preview1_stubbed_by_default() {
+        let binary = wat_to_wasm(&make_wat_with_import(
+            "wasi_snapshot_preview1",
+            "fd_write",
+        ));
+        let stubbed = stub_wasi_functions(&binary, ShouldStub::default(), 0).unwrap();
+        assert!(
+            !output_wat(&stubbed).contains("\"wasi_snapshot_preview1\""),
+            "wasi_snapshot_preview1 import should be stubbed by default"
+        );
+    }
+
+    #[test]
+    fn test_wbindgen_placeholder_stubbed_by_default() {
+        let binary = wat_to_wasm(&make_wat_with_import(
+            "__wbindgen_placeholder__",
+            "__wbindgen_describe",
+        ));
+        let stubbed = stub_wasi_functions(&binary, ShouldStub::default(), 0).unwrap();
+        assert!(
+            !output_wat(&stubbed).contains("\"__wbindgen_placeholder__\""),
+            "__wbindgen_placeholder__ import should be stubbed by default"
+        );
+    }
+
+    #[test]
+    fn test_unknown_module_not_stubbed_by_default() {
+        let binary = wat_to_wasm(&make_wat_with_import("some_other_module", "some_func"));
+        let stubbed = stub_wasi_functions(&binary, ShouldStub::default(), 0).unwrap();
+        assert!(
+            output_wat(&stubbed).contains("\"some_other_module\""),
+            "unknown modules should not be stubbed by default"
+        );
+    }
+}
