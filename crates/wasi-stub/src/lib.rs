@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 
 use wast::{
     core::{
-        Expression, Func, FuncKind, FunctionType, HeapType, InlineExport, Instruction, ItemKind,
-        Local, ModuleField, ModuleKind, RefType, TypeUse, ValType,
+        Expression, Func, FuncKind, FunctionType, HeapType, InlineExport, InnerTypeKind,
+        Instruction, ItemKind, Local, ModuleField, ModuleKind, RefType, TypeUse, ValType,
     },
     token::{Id, Index, NameAnnotation},
     Wat,
@@ -82,20 +82,11 @@ fn static_val_type(val_type: &ValType) -> ValType<'static> {
         ValType::Ref(r) => ValType::Ref(RefType {
             nullable: r.nullable,
             heap: match r.heap {
-                HeapType::Func => HeapType::Func,
-                HeapType::Extern => HeapType::Extern,
-                HeapType::Any => HeapType::Any,
-                HeapType::Eq => HeapType::Eq,
-                HeapType::Struct => HeapType::Struct,
-                HeapType::Array => HeapType::Array,
-                HeapType::I31 => HeapType::I31,
-                HeapType::NoFunc => HeapType::NoFunc,
-                HeapType::NoExtern => HeapType::NoExtern,
-                HeapType::None => HeapType::None,
-                HeapType::Index(index) => HeapType::Index(match index {
+                HeapType::Concrete(index) => HeapType::Concrete(match index {
                     Index::Num(n, s) => Index::Num(n, s),
                     Index::Id(id) => Index::Id(static_id(Some(id)).unwrap()),
                 }),
+                HeapType::Abstract { shared, ty } => HeapType::Abstract { shared, ty },
             },
         }),
     }
@@ -105,16 +96,14 @@ pub fn stub_wasi_functions(
     binary: &[u8],
     should_stub: ShouldStub,
     return_value: u32,
-) -> anyhow::Result<Vec<u8>> {
-    let wat = wasmprinter::print_bytes(binary)?;
+) -> crate::Result<Vec<u8>> {
+    let wat = wasmprinter::print_bytes(binary).map_err(std::io::Error::other)?;
     let parse_buffer = wast::parser::ParseBuffer::new(&wat)?;
 
     let mut wat: Wat = wast::parser::parse(&parse_buffer)?;
     let module = match &mut wat {
         Wat::Module(m) => m,
-        Wat::Component(_) => {
-            anyhow::bail!("components are not supported")
-        }
+        Wat::Component(_) => return Err(Error::message("components are not supported")),
     };
     let fields = match &mut module.kind {
         ModuleKind::Text(f) => f,
@@ -146,7 +135,11 @@ pub fn stub_wasi_functions(
                         println!("Stubbing function {}::{}", i.module, i.field);
                         let typ = &types[type_index];
                         let ty = TypeUse::new_with_index(Index::Num(type_index as u32, typ.span));
-                        let wast::core::TypeDef::Func(func_typ) = &typ.def else {
+                        let wast::core::TypeDef {
+                            kind: InnerTypeKind::Func(func_typ),
+                            ..
+                        } = &typ.def
+                        else {
                             continue;
                         };
                         let id = static_id(i.item.id);
@@ -264,6 +257,8 @@ pub fn stub_wasi_functions(
                 locals: locals.into_boxed_slice(),
                 expression: Expression {
                     instrs: instructions.into_boxed_slice(),
+                    branch_hints: Box::new([]),
+                    instr_spans: None,
                 },
             },
             ty,
@@ -274,3 +269,25 @@ pub fn stub_wasi_functions(
 
     Ok(module.encode()?)
 }
+
+// Error handling
+pub struct Error(Box<dyn std::error::Error + Send + Sync + 'static>);
+impl Error {
+    pub fn message(reason: impl AsRef<str>) -> Self {
+        Self(Box::new(std::io::Error::other(reason.as_ref().to_string())))
+    }
+}
+impl std::fmt::Debug for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        std::fmt::Display::fmt(&self.0, f)
+    }
+}
+impl<E> From<E> for Error
+where
+    E: std::error::Error + Send + Sync + 'static,
+{
+    fn from(err: E) -> Self {
+        Self(Box::new(err))
+    }
+}
+pub type Result<T> = std::result::Result<T, Error>;

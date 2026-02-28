@@ -3,8 +3,8 @@ name = "wasi-stub"
 edition = "2021"
 version = "0.2.0"
 authors = ["Arnaud Golfouse <arnaud.golfouse@laposte.net>"]
+repository = "https://github.com/typst-community/wasm-minimal-protocol"
 
 [dependencies]
-anyhow = "1.0"
-wast = "65.0"
-wasmprinter = "0.2"
+wast = "219.0"
+wasmprinter = "0.219"

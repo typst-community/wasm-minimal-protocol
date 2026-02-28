@@ -6,11 +6,15 @@ If you don't depend on printing or reading/writing files, your code will probabl
 
 ## How to install
 
-From the wasi-stub directory (where this README is), run `cargo install --path .`, you will need a working rust toolchain.
+You can download binaries from [GitHub Releases](https://github.com/typst-community/wasm-minimal-protocol/releases).
+
+Alternatively, if you have a working rust toolchain, you can compile from source by running `cargo install --path .` from the wasi-stub directory (where this README is).
 
 ## How to use
 
 Once you installed wasi-stub, you can simply run `wasi-stub my_library.wasm` from the terminal.
+
+Run `wasi-stub --help` for more options.
 
 # Alternatives (?)
 
