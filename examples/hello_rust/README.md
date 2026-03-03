@@ -1,6 +1,6 @@
 # Rust wasm plugin example
 
-This is a bare-bone Typst plugin, written in Rust. It uses the [wasm-minimal-protocol](../../) crate to easily define plugin functions.
+This is a bare-bones Typst plugin, written in Rust. It uses the [wasm-minimal-protocol](../../) crate to easily define plugin functions.
 
 ## Compile
 

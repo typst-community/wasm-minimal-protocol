@@ -1,6 +1,6 @@
 # Zig wasm plugin example
 
-This is a bare-bone Typst plugin, written in Zig.
+This is a bare-bones Typst plugin, written in Zig.
 
 ## Compile
 

@@ -1,6 +1,6 @@
 # Go wasm plugin example
 
-This is a bare-bone Typst plugin, written in Go.
+This is a bare-bones Typst plugin, written in Go.
 
 ## Compile
 

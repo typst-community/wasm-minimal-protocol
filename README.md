@@ -47,7 +47,7 @@ Refer to [CONTRIBUTING](./CONTRIBUTING.md) for details.
 
 ## wasi-stub
 
-The runtime used by Typst do not allow the plugin to import any function (beside the ones used by the protocol). In particular, if your plugin is compiled for [WASI](https://wasi.dev/), it will not be able to be loaded by Typst.
+The runtime used by Typst does not allow the plugin to import any function (beside the ones used by the protocol). In particular, if your plugin is compiled for [WASI](https://wasi.dev/), it will not be able to be loaded by Typst.
 
 To get around that, you can use [wasi-stub](./crates/wasi-stub/). It will detect all WASI-related imports, and replace them by stubs that do nothing.
 

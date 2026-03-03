@@ -25,8 +25,8 @@ All dates in this file are in UTC.
 
 #### Added
 - More flexibility in the types of arguments and returns (#41):
-  - Argument/input type: `&mut [u8]` are now supported. Previously, only `&[u8]` was supported.
-  - Return/output type:  `&[u8]`, `Box<[u8]>`, and their `Result<T, E>` variants are now supported. Previously, only `Vec<u8>` and `Result<Vec<u8>, E>` were supported.
+  - Argument/input type: `&mut [u8]` is now supported. Previously, only `&[u8]` was supported.
+  - Return/output type: `&[u8]`, `Box<[u8]>`, and their `Result<T, E>` variants are now supported. Previously, only `Vec<u8>` and `Result<Vec<u8>, E>` were supported.
 
 #### Changed
 - Restructure the project to allow inclusion as a git submodule in other projects (#28 and #31).
