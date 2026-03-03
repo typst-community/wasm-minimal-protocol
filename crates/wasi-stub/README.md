@@ -2,7 +2,7 @@
 
 This is a tool allowing you to take a [wasi](https://wasi.dev/) compliant WebAssembly file and replace all functions wasi depends on by meaningless stubs.
 
-If you don't depend on printing or reading/writing files, your code will probably still work and it will now be compatible with typst or host-wasmi.
+If you don't depend on printing or reading/writing files, your code will probably still work and it will now be compatible with [Typst](https://typst.app/docs/reference/foundations/plugin/) or [Wasmi](https://crates.io/crates/wasmi).
 
 ## How to install
 
