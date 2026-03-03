@@ -18,4 +18,4 @@ Run `wasi-stub --help` for more options.
 
 # Alternatives (?)
 
-Inspiration for this comes from [https://github.com/dicej/stubber]. It replaces stubbed functions with a trap, while `wasi-stub` replaces them with functions that do nothing.
+Inspiration for this comes from [dicej/stubber](https://github.com/dicej/stubber). It replaces stubbed functions with a trap, while `wasi-stub` replaces them with functions that do nothing.

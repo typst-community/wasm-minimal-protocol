@@ -28,7 +28,7 @@ pub fn hello() -> Vec<u8> {
 #assert.eq(str(p.hello()), "Hello from wasm!!!")
 ```
 
-For other languages, the protocol is described at <https://typst.app/docs/reference/foundations/plugin/>. You should also take a look at this repository's [examples](#examples).
+For other languages, the protocol is described at [Plugin Function – Typst Documentation](https://typst.app/docs/reference/foundations/plugin/). You should also take a look at this repository's [examples](#examples).
 
 ## Examples
 
