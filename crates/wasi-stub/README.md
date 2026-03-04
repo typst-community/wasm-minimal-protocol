@@ -6,9 +6,18 @@ If you don't depend on printing or reading/writing files, your code will probabl
 
 ## How to install
 
-You can download binaries from [GitHub Releases](https://github.com/typst-community/wasm-minimal-protocol/releases).
+You can download binaries from [GitHub Releases](https://github.com/typst-community/wasm-minimal-protocol/releases) or via [`cargo binstall wasi-stub`](https://crates.io/crates/cargo-binstall).
 
-Alternatively, if you have a working rust toolchain, you can compile from source by running `cargo install --path .` from the wasi-stub directory (where this README is).
+Alternatively, if you have a working rust toolchain, you can compile from source by running `cargo install wasi-stub`. You can also test the latest unreleased version by running `cargo install --path .` from the wasi-stub directory (where this README is).
+
+For GitHub Actions, use [taiki-e/install-action](https://github.com/marketplace/actions/install-development-tools) to install:
+
+```yaml
+- uses: taiki-e/install-action@v2
+  with:
+    tool: wasi-stub
+- run: wasi-stub hello.wasm -o hello.wasm
+```
 
 ## How to use
 

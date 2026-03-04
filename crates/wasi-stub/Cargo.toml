@@ -10,3 +10,7 @@ repository = "https://github.com/typst-community/wasm-minimal-protocol"
 [dependencies]
 wast = "219.0"
 wasmprinter = "0.219"
+
+[package.metadata.binstall]
+# cargo-binstall's default template does not recognize our tag names.
+pkg-url = "{ repo }/releases/download/wasi-stub-{ version }/{ name }-{ target }{ archive-suffix }"

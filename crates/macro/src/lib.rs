@@ -1,4 +1,5 @@
-//! Minimal protocol for sending/receiving messages from and to a wasm host.
+//! Minimal protocol for sending/receiving messages from and to a wasm host,
+//! especially [Typst](https://typst.app/docs/reference/foundations/plugin/) or [Wasmi](https://crates.io/crates/wasmi).
 //!
 //! If you define a function accepting `n` arguments of type `&[u8]`, it will
 //! internally be exported as a function accepting `n` integers.
@@ -17,21 +18,12 @@
 //! }
 //! ```
 //!
-//! # Allowed types
-//!
-//! Allowed input types are either `&[u8]` or `&mut [u8]`.
-//!
-//! Allowed output types are
-//! - `Vec<u8>`
-//! - `Box<[u8]>`
-//! - `&[u8]`
-//! - `Result<T, E>`, where `T` is any of the above, and `E` is a type implementing
-//!   [`Display`](std::fmt::Display).
+//! See also the [full example project](../../../examples/hello_rust/).
 //!
 //! # Protocol
 //!
-//! The specification of the low-level protocol can be found in the typst documentation:
-//! <https://typst.app/docs/reference/foundations/plugin/#protocol>
+//! The specification of the low-level protocol can be found in
+//! [Plugin Function – Typst Documentation](https://typst.app/docs/reference/foundations/plugin/).
 
 use proc_macro::TokenStream;
 use proc_macro2::{Delimiter, TokenTree};
@@ -100,14 +92,23 @@ pub fn initiate_protocol(stream: TokenStream) -> TokenStream {
 ///
 /// # Arguments
 ///
-/// All the arguments of the function should be `&[u8]`, no lifetime needed.
+/// Each argument of the function should be of either `&[u8]` or `&mut [u8]`.
+///
+/// `&[u8]` is suitable for most usages. Even if `&mut [u8]` is used, mutations to the argument have no effect in Typst and you still have to return the result. This is limited by the protocol.
 ///
 /// # Return type
 ///
-/// The return type of the function should be `Vec<u8>` or `Result<Vec<u8>, E>` where
-/// `E: ToString`.
+/// The return type of the function should be one of the following:
 ///
-/// If the function return `Vec<u8>`, it will be implicitly wrapped in `Ok`.
+/// - [`Vec<u8>`]
+/// - [`Box<[u8]>`](Box)
+/// - `&[u8]`
+/// - [`Result<T, E>`], where `T` is any of the above, and `E` is a type implementing
+///   [`Display`](std::fmt::Display) (e.g., [`String`]).
+///
+/// In all but the last case, the return value will be implicitly wrapped in [`Ok`].
+///
+/// `Vec<u8>` and `Result<Vec<u8>, E>` cover most use cases and are recommended.
 ///
 /// # Example
 ///
@@ -132,6 +133,8 @@ pub fn initiate_protocol(stream: TokenStream) -> TokenStream {
 ///     Err(String::from("Error message"))
 /// }
 /// ```
+///
+/// See also the [full example project](../../../examples/hello_rust/).
 #[proc_macro_attribute]
 pub fn wasm_func(_: TokenStream, item: TokenStream) -> TokenStream {
     let mut item = proc_macro2::TokenStream::from(item);

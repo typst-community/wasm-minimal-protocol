@@ -51,6 +51,7 @@ All dates in this file are in UTC.
 
 #### Added
 - Support stubbing functions that return `i64`, `f32`, or `f64` — only `i32` was supported previously (#32).
+- Support [cargo-binstall](https://crates.io/crates/cargo-binstall) (#59).
 
 ### [0.2.1] - 2026-03-02
 

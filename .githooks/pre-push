@@ -1,5 +1,14 @@
 #!/bin/sh
 
+# This hook checks:
+#
+# 1. That the tests build with the minimum versions specified in `crates/macro/Cargo.toml`
+# 	 - Since `wasm-minimal-protocol` is a library, it needs to be aware of its minimal dependencies, in case it is caught up in a complicated version resolution.
+# 	 - Because `wasi-stub` is a binary, it has no such concerns, and so we don't specify patch version number. It will always be built with the highest compatible versions.
+# 2. That the formatting is correct
+# 3. That the documentation builds
+# 4. That the tests pass
+
 set -e
 
 # backup Cargo.lock
@@ -16,6 +25,6 @@ cargo test --workspace --no-run
 
 restore_cargo_lock
 cargo fmt --all --check
-cargo clippy --all-targets -- --D warnings
-RUSTDOCFLAGS="-D warnings" cargo doc --document-private-items --no-deps
+cargo clippy --all-targets -- --deny warnings
+RUSTDOCFLAGS="--deny warnings" cargo doc --document-private-items --no-deps
 cargo test

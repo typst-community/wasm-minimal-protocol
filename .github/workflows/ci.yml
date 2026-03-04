@@ -107,3 +107,11 @@ jobs:
           executable-name: typst-0.8
 
       - run: ./.githooks/pre-push
+
+  check-wasi-stub-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: wasi-stub
+      - run: wasi-stub --help
