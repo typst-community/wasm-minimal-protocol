@@ -1,2 +1,7 @@
 /target
 **/target
+
+# This README should be generated with https://github.com/chmln/sd by running:
+#   cat ./README.md | sd --fixed-strings '](./' '](../../' > ./crates/macro/README.md
+# The `readme` field in `/crates/macro/Cargo.toml` should not be used, or links on crates.io will be wrong.
+/crates/macro/README.md

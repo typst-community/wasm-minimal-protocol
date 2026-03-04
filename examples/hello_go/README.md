@@ -1,6 +1,6 @@
 # Go wasm plugin example
 
-This is a bare-bone typst plugin, written in Go.
+This is a bare-bones Typst plugin, written in Go.
 
 ## Compile
 
@@ -26,6 +26,6 @@ Then, stub the resulting binary:
 cargo run --manifest-path ../../crates/wasi-stub/Cargo.toml hello.wasm -o hello.wasm
 ```
 
-## Build with typst
+## Build with Typst
 
 Simply run `typst compile hello.typ`, and observe that it works!

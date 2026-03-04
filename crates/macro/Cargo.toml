@@ -2,7 +2,7 @@
 name = "wasm-minimal-protocol"
 version = "0.1.0"
 edition = "2021"
-license-file = "LICENSE"
+license-file = "../../LICENSE"
 description = "Typst plugin helper macro library"
 repository = "https://github.com/typst-community/wasm-minimal-protocol"
 

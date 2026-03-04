@@ -1,6 +1,6 @@
 # Rust wasm plugin example
 
-This is a bare-bone typst plugin, written in Rust. It uses the [wasm-minimal-protocol](../../) crate to easily define plugin functions.
+This is a bare-bones Typst plugin, written in Rust. It uses the [wasm-minimal-protocol](../../) crate to easily define plugin functions.
 
 ## Compile
 
@@ -33,6 +33,6 @@ Then, stub the resulting binary:
 cargo run --manifest-path ../../crates/wasi-stub/Cargo.toml hello.wasm -o hello.wasm
 ```
 
-## Build with typst
+## Build with Typst
 
-Simply run `typst compile hello.typ`, and observe that it works !
+Simply run `typst compile hello.typ`, and observe that it works!

@@ -1,6 +1,6 @@
 # C wasm plugin example
 
-This is a bare-bone typst plugin, written in C.
+This is a bare-bones Typst plugin, written in C.
 
 ## Compile
 
@@ -18,6 +18,6 @@ cargo run -- ../examples/hello_c/hello.wasm -o ../examples/hello_c/hello.wasm
 popd
 ```
 
-## Build with typst
+## Build with Typst
 
-Simply run `typst compile hello.typ`, and observe that it works !
+Simply run `typst compile hello.typ`, and observe that it works!
