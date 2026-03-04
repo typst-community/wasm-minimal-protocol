@@ -245,7 +245,7 @@ Multiple functions can be given: simply separate them with commas (without white
                 Arg::KeyValue {
                     keys: &["-r", "--return-value"],
                     value_type: "INTEGER",
-                    help: "Make all stubbed function that return values return this number. By default, functions return 76."
+                    help: "Make all stubbed functions that return values return this number. Only a nonnegative integer can be accepted, and it will be converted to each function's return type, which is usually i32. By default, functions return 76."
                 },
                 Arg::LongFlag {
                     name: "--list",

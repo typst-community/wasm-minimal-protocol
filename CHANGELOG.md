@@ -47,6 +47,11 @@ All dates in this file are in UTC.
 
 ## wasi-stub
 
+### [Unreleased]
+
+#### Added
+- Support stubbing functions that return `i64`, `f32`, or `f64` — only `i32` was supported previously (#32).
+
 ### [0.2.1] - 2026-03-02
 
 This version is mainly for testing [trusted publishing](https://crates.io/docs/trusted-publishing) after the repository has been [transferred from astrale-sharp to typst-community](https://github.com/orgs/typst-community/discussions/35).
