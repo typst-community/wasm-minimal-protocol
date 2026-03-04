@@ -230,21 +230,29 @@ pub fn stub_wasi_functions(
         },
     ) in to_stub.into_iter().enumerate()
     {
-        let instructions: Vec<_> = results
+        let instructions = results
             .iter()
             .map(|val_type| {
                 // Return weird values as the expected types, hopefully this makes it easier to track usage of these stubbed functions.
-                match val_type {
+                let instruction = match val_type {
                     ValType::I32 => Instruction::I32Const(return_value as i32),
                     ValType::I64 => Instruction::I64Const(return_value as i64),
-                    ValType::F32 => Instruction::F32Const(wast::token::F32 { bits: return_value }),
-                    ValType::F64 => Instruction::F64Const(wast::token::F64 {
-                        bits: return_value as u64,
+                    ValType::F32 => Instruction::F32Const(wast::token::F32 {
+                        bits: (return_value as f32).to_bits(),
                     }),
-                    _ => panic!("Unsupported stub return type {:?}", val_type),
-                }
+                    ValType::F64 => Instruction::F64Const(wast::token::F64 {
+                        bits: (return_value as f64).to_bits(),
+                    }),
+                    _ => {
+                        return Err(Error::message(format!(
+                            "Unsupported stub return type {:?} for function {:?}",
+                            val_type, name
+                        )))
+                    }
+                };
+                Ok(instruction)
             })
-            .collect();
+            .collect::<Result<Vec<_>>>()?;
         let function = Func {
             span,
             id,
