@@ -71,7 +71,7 @@ fn static_name_annotation(name: Option<NameAnnotation>) -> Option<NameAnnotation
         name: String::from(name.name).leak(),
     })
 }
-/// Make a 'ValType` static
+/// Make a `ValType` static
 fn static_val_type(val_type: &ValType) -> ValType<'static> {
     // FIXME: This long match dance is _only_ to make the lifetime of ty 'static. A lot of things have to go through this dance (see the `static_*` function...)
     // Instead, we should write the new function here, in place, by replacing `field`. This is currently done in the for loop at the very end of the function `stub_wasi_functions`.
