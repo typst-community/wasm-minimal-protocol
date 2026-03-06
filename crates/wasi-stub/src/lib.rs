@@ -1,13 +1,13 @@
 use std::collections::{HashMap, HashSet};
 
 use wast::{
+    Wat,
     core::{
         Expression, Func, FuncKind, FunctionType, HeapType, ImportItems, InlineExport,
         InnerTypeKind, Instruction, ItemKind, Local, ModuleField, ModuleKind, RefType, TypeUse,
         ValType,
     },
     token::{Id, Index, NameAnnotation},
-    Wat,
 };
 
 #[derive(Debug)]
@@ -294,7 +294,7 @@ pub fn stub_wasi_functions(
                         return Err(Error::message(format!(
                             "Unsupported stub return type {:?} for function {:?}",
                             val_type, name
-                        )))
+                        )));
                     }
                 };
                 Ok(instruction)

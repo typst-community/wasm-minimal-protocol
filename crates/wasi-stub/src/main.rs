@@ -1,7 +1,7 @@
 mod parse_args;
 
 use std::path::PathBuf;
-use wasi_stub::{stub_wasi_functions, Error, Result};
+use wasi_stub::{Error, Result, stub_wasi_functions};
 
 fn main() -> Result<()> {
     let parse_args::Args {

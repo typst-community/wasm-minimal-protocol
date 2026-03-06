@@ -1,6 +1,6 @@
 [package]
 name = "wasi-stub"
-edition = "2021"
+edition = "2024"
 version = "0.3.0"
 authors = ["Arnaud Golfouse <arnaud.golfouse@laposte.net>"]
 license-file = "../../LICENSE"
