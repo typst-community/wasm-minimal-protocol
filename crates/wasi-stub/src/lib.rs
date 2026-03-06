@@ -92,6 +92,10 @@ fn static_val_type(val_type: &ValType) -> ValType<'static> {
                     Index::Num(n, s) => Index::Num(n, s),
                     Index::Id(id) => Index::Id(static_id(Some(id)).unwrap()),
                 }),
+                HeapType::Exact(index) => HeapType::Exact(match index {
+                    Index::Num(n, s) => Index::Num(n, s),
+                    Index::Id(id) => Index::Id(static_id(Some(id)).unwrap()),
+                }),
                 HeapType::Abstract { shared, ty } => HeapType::Abstract { shared, ty },
             },
         }),
@@ -185,7 +189,7 @@ pub fn stub_wasi_functions(
                     insert_stubs_index = Some(field_idx);
                 }
                 match &mut func.kind {
-                    FuncKind::Import(f) => {
+                    FuncKind::Import(f, ..) => {
                         if should_stub.should_stub(f.module, f.field) {
                             println!("[WARNING] Stubbing inline function is not yet supported");
                             println!(

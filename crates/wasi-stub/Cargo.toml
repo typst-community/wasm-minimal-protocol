@@ -8,7 +8,7 @@ description = "Detect all WASI-related imports in a WebAssembly file, and replac
 repository = "https://github.com/typst-community/wasm-minimal-protocol"
 
 [dependencies]
-wast = "241.0"
+wast = "243.0"
 wasmprinter = "0.244"
 
 [package.metadata.binstall]
