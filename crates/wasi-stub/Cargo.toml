@@ -8,8 +8,8 @@ description = "Detect all WASI-related imports in a WebAssembly file, and replac
 repository = "https://github.com/typst-community/wasm-minimal-protocol"
 
 [dependencies]
+wasmprinter = "0.245"
 wast = "245.0"
-wasmprinter = "0.244"
 
 [package.metadata.binstall]
 # cargo-binstall's default template does not recognize our tag names.
