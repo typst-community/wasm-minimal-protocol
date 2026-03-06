@@ -23,7 +23,7 @@ GOOS=wasip1 GOARCH=wasm tinygo build -o hello.wasm
 Then, stub the resulting binary:
 
 ```sh
-cargo run --manifest-path ../../crates/wasi-stub/Cargo.toml hello.wasm -o hello.wasm
+wasi-stub hello.wasm -o hello.wasm
 ```
 
 ## Build with Typst

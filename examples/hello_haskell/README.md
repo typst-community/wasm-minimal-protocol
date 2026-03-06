@@ -20,8 +20,7 @@ wasm32-wasi-ghc Main.hs typ_wrapper.c -o hello.wasm \
 Then, stub the resulting binary with `--return-value 0`:
 
 ```sh
-cargo run --manifest-path ../../crates/wasi-stub/Cargo.toml \
-    --return-value 0 hello.wasm -o hello.wasm
+wasi-stub --return-value 0 hello.wasm -o hello.wasm
 ```
 
 ## Build with Typst

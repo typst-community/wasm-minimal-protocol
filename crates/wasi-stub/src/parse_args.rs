@@ -6,6 +6,7 @@ use std::{
 };
 use wasi_stub::{FunctionsToStub, ShouldStub};
 
+#[derive(Debug)]
 pub(crate) struct Args {
     pub binary: Vec<u8>,
     pub path: PathBuf,
@@ -58,7 +59,11 @@ impl TestArgParser {
         }
     }
 
-    fn parse(&mut self) -> Result<(), String> {
+    /// Parse `std::env::args_os().skip(1)`.
+    fn parse_from<T>(&mut self, args: impl IntoIterator<Item = T>) -> Result<(), String>
+    where
+        T: Into<OsString> + Clone,
+    {
         let mut expect_long_flags = HashSet::new();
         let mut expect_short_flags = HashSet::new();
         let mut expect_keys = HashSet::new();
@@ -85,7 +90,8 @@ impl TestArgParser {
             .collect();
 
         let mut current_key = None;
-        for arg in std::env::args_os().skip(1) {
+        for arg in args {
+            let arg: OsString = arg.into();
             if let Some(key) = current_key.take() {
                 self.key_values.insert(key, arg);
                 continue;
@@ -198,6 +204,8 @@ impl TestArgParser {
                     Self::print_help(help);
                 }
             }
+            // Add empty lines between options for better readability.
+            println!();
         }
     }
 
@@ -205,14 +213,21 @@ impl TestArgParser {
         for line in help.lines() {
             println!("        {line}");
         }
-        if !help.contains('\n') {
-            println!();
-        }
     }
 }
 
 impl Args {
     pub fn new() -> Result<Self, Error> {
+        let mut args = Self::from(std::env::args_os().skip(1))?;
+        args.binary = std::fs::read(&args.path)?;
+        Ok(args)
+    }
+
+    /// A utility function only for writing tests. It doesn't check the existence of `path` nor read it into `binary`.
+    fn from<T>(args: impl IntoIterator<Item = T>) -> Result<Self, Error>
+    where
+        T: Into<OsString> + Clone,
+    {
         let mut arg_parser = TestArgParser::new(
             env!("CARGO_PKG_NAME"),
             "A command to replace wasi functions with stubs. The stubbed function can still be called, but they won't have any side-effect, and will simply return dummy values.",
@@ -225,27 +240,30 @@ impl Args {
                 Arg::KeyValue {
                     keys: &["-o", "--output"],
                     value_type: "PATH",
-                    help: "Specify the output path.",
+                    help: "Specify the output path.
+If not given, the output will be written next to the input file, with ` - stubbed` appended to the file name. If that file already exists, a number will be appended (e.g., ` - stubbed (1)`).",
                 },
                 Arg::KeyValue {
                     keys: &["--stub-module"],
                     value_type: "STRING",
                     help: "Stub the given module.
-You can also give a list of comma-separated modules.",
+You can also give a list of comma-separated modules (without whitespace).
+Default: wasi_snapshot_preview1 (See also the note for `--stub-function`.)",
                 },
                 Arg::KeyValue {
                     keys: &["--stub-function"],
                     value_type: "STRING:STRING",
                     help: "Stub the given function. It must have the format 'module:function'.
 Example:
-wasi-stub input.wasm --stub-function horrible_module:terrible_function
-
-Multiple functions can be given: simply separate them with commas (without whitespace).",
+    wasi-stub input.wasm --stub-function horrible_module:terrible_function
+Multiple functions can be given: simply separate them with commas (without whitespace). If you want to stub all functions in a module, use `--stub-module` instead.
+Note that if this option is given, the default value of `--stub-module` will be changed to empty. This makes it possible to only stub some of the wasi functions.",
                 },
                 Arg::KeyValue {
                     keys: &["-r", "--return-value"],
                     value_type: "INTEGER",
-                    help: "Make all stubbed functions that return values return this number. Only a nonnegative integer can be accepted, and it will be converted to each function's return type, which is usually i32. By default, functions return 76."
+                    help: "Make all stubbed functions that return values return this number. Only a nonnegative integer can be accepted, and it will be converted to each function's return type, which is usually i32.
+Default: 76"
                 },
                 Arg::LongFlag {
                     name: "--list",
@@ -254,7 +272,7 @@ Multiple functions can be given: simply separate them with commas (without white
             ],
         );
 
-        arg_parser.parse().map_err(Error::message)?;
+        arg_parser.parse_from(args).map_err(Error::message)?;
 
         if arg_parser.requested_help {
             arg_parser.print_help_message();
@@ -276,6 +294,9 @@ Multiple functions can be given: simply separate them with commas (without white
         }
         if let Some(stub_functions) = arg_parser.key_values.get("--stub-function") {
             if let Some(stub_functions) = stub_functions.to_str() {
+                // Make it possible to only stub some of the wasi functions.
+                should_stub.modules.clear();
+
                 for function in stub_functions.split(',') {
                     let (module, function) = match function.split_once(':') {
                         Some((m, f)) => (m, f),
@@ -317,12 +338,116 @@ Multiple functions can be given: simply separate them with commas (without white
         }
 
         Ok(Self {
-            binary: std::fs::read(&path)?,
+            binary: Default::default(), // To be filled in `new()`.
             path,
             output_path,
             list,
             should_stub,
             return_value,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_args() {
+        let args = Args::from([
+            "input.wasm",
+            "--stub-function",
+            "horrible_module:terrible_function,holodeck:freeze_program",
+            "--stub-module",
+            "env",
+            "--return-value",
+            "42",
+        ])
+        .unwrap();
+
+        assert_eq!(args.path, PathBuf::from("input.wasm"));
+        assert_eq!(args.output_path, None);
+        assert!(!args.list);
+        assert_eq!(args.return_value, 42);
+
+        assert_eq!(
+            args.should_stub
+                .modules
+                .keys()
+                .into_iter()
+                .map(String::from)
+                .collect::<HashSet<String>>(),
+            ["horrible_module", "holodeck", "env"]
+                .into_iter()
+                .map(String::from)
+                .collect::<HashSet<String>>()
+        );
+        assert!(matches!(
+            args.should_stub.modules.get("env").unwrap(),
+            FunctionsToStub::All
+        ));
+        assert!(matches!(
+            args.should_stub.modules.get("horrible_module").unwrap(),
+            FunctionsToStub::Some(functions) if functions.contains("terrible_function") && functions.len() == 1
+        ));
+        assert!(matches!(
+            args.should_stub.modules.get("holodeck").unwrap(),
+            FunctionsToStub::Some(functions) if functions.contains("freeze_program") && functions.len() == 1
+        ));
+    }
+
+    #[test]
+    fn test_default_should_stub() {
+        let args = Args::from(["input.wasm"]).unwrap();
+
+        assert_eq!(
+            args.should_stub.modules.keys().collect::<Vec<_>>(),
+            ["wasi_snapshot_preview1"]
+        );
+        assert!(matches!(
+            args.should_stub
+                .modules
+                .get("wasi_snapshot_preview1")
+                .unwrap(),
+            FunctionsToStub::All
+        ));
+    }
+
+    #[test]
+    fn test_repeat_args_override() {
+        // This behavior is undocumented, and may change to concatenation in the future.
+        let args = Args::from([
+            "--stub-module",
+            "env",
+            "--stub-function",
+            "foo:bar",
+            "--stub-module",
+            "foo",
+            "input.wasm",
+            "--stub-function",
+            "holodeck:freeze_program",
+        ])
+        .unwrap();
+
+        assert_eq!(
+            args.should_stub
+                .modules
+                .keys()
+                .into_iter()
+                .map(String::from)
+                .collect::<HashSet<String>>(),
+            ["foo", "holodeck"]
+                .into_iter()
+                .map(String::from)
+                .collect::<HashSet<String>>()
+        );
+        assert!(matches!(
+            args.should_stub.modules.get("foo").unwrap(),
+            FunctionsToStub::All
+        ));
+        assert!(matches!(
+            args.should_stub.modules.get("holodeck").unwrap(),
+            FunctionsToStub::Some(functions) if functions.contains("freeze_program") && functions.len() == 1
+        ));
     }
 }

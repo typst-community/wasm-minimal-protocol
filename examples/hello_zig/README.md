@@ -35,7 +35,7 @@ zig build-exe hello.zig -target wasm32-wasi -fno-entry -O ReleaseSmall \
 Then, stub the resulting binary:
 
 ```sh
-cargo run --manifest-path ../../crates/wasi-stub/Cargo.toml hello.wasm -o hello.wasm
+wasi-stub hello.wasm -o hello.wasm
 ```
 
 ## Build with Typst

@@ -42,6 +42,8 @@ See the example for your language:
 
 If you want to pass structured data to Typst, the Typst functions [`cbor` and `cbor.encode`](https://typst.app/docs/reference/data-loading/cbor/) are available. Examples marked with 🌟 cover how it's done.
 
+Some examples require [wasi-stub](#wasi-stub). You can [install wasi-stub](./crates/wasi-stub/README.md#how-to-install) or replace the commands with `cargo run --manifest-path ../../crates/wasi-stub/Cargo.toml -- [<arguments>...]`.
+
 If you have all the required dependencies, you may build all examples by running `cargo test`.
 Refer to [CONTRIBUTING](./CONTRIBUTING.md) for details.
 
