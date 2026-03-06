@@ -2,8 +2,9 @@ use std::collections::{HashMap, HashSet};
 
 use wast::{
     core::{
-        Expression, Func, FuncKind, FunctionType, HeapType, InlineExport, InnerTypeKind,
-        Instruction, ItemKind, Local, ModuleField, ModuleKind, RefType, TypeUse, ValType,
+        Expression, Func, FuncKind, FunctionType, HeapType, ImportItems, InlineExport,
+        InnerTypeKind, Instruction, ItemKind, Local, ModuleField, ModuleKind, RefType, TypeUse,
+        ValType,
     },
     token::{Id, Index, NameAnnotation},
     Wat,
@@ -34,13 +35,21 @@ enum ImportIndex {
     Keep(u32),
 }
 
+/// A function to be stubbed.
 struct ToStub {
+    /// The index of the original import field in the module.
     fields_index: usize,
+    /// The span of the original import field.
     span: wast::token::Span,
+    /// The results types of the function.
     results: Vec<ValType<'static>>,
+    /// The type of the function, with parameters and results.
     ty: TypeUse<'static, FunctionType<'static>>,
+    /// The name of the function.
     name: Option<NameAnnotation<'static>>,
+    /// The identifier used during name resolution to refer to the function from the rest of the module.
     id: Option<Id<'static>>,
+    /// The parameters of the function.
     locals: Vec<Local<'static>>,
 }
 
@@ -123,26 +132,50 @@ pub fn stub_wasi_functions(
         }
     };
 
+    // Three edits are needed to stub a function:
+    // - Remove the corresponding import field.
+    // - Define a stub function of the same type.
+    // - Update references to the original function.
+    //
+    // We achieve it in two for-loops:
+    // 1. Scan functions to be stubbed, and update references to them.
+    // 2. For each function to be stubbed, swap its import field with the definition of its stub.
+
+    // Types defined in the module
     let mut types = Vec::new();
-    let mut imports = Vec::new();
+    // Imports to be kept
+    let mut kept = Vec::new();
+    // Imports to be stubbed
     let mut to_stub = Vec::new();
+    // The place to insert definitions of stubs
     let mut insert_stubs_index = None;
+    // Imports after stubbing, represented as indices in `to_stub` or `kept`
     let mut new_import_indices = Vec::new();
 
     for (field_idx, field) in fields.iter_mut().enumerate() {
+        // Assuming `ModuleField`s are iterated in order: Type → Import → … → Func → …
         match field {
             ModuleField::Type(t) => types.push(t),
             ModuleField::Import(i) => {
-                let typ = match &i.item.kind {
+                let (module, field, sig) = match &i.items {
+                    ImportItems::Single { module, name, sig } => (*module, *name, sig),
+                    _ => {
+                        println!("[WARNING] Stubbing compact import groups are not yet supported");
+                        continue;
+                    }
+                };
+
+                let typ = match &sig.kind {
                     ItemKind::Func(typ) => typ.index.and_then(|index| match index {
                         Index::Num(index, _) => Some(index as usize),
                         Index::Id(_) => None,
                     }),
                     _ => None,
                 };
+                // Push the import to either `to_stub` or `kept`
                 let new_index = match typ {
-                    Some(type_index) if should_stub.should_stub(i.module, i.field) => {
-                        println!("Stubbing function {}::{}", i.module, i.field);
+                    Some(type_index) if should_stub.should_stub(module, field) => {
+                        println!("Stubbing function {}::{}", module, field);
                         let typ = &types[type_index];
                         let ty = TypeUse::new_with_index(Index::Num(type_index as u32, typ.span));
                         let wast::core::TypeDef {
@@ -152,7 +185,7 @@ pub fn stub_wasi_functions(
                         else {
                             continue;
                         };
-                        let id = static_id(i.item.id);
+                        let id = static_id(sig.id);
                         let locals: Vec<Local> = func_typ
                             .params
                             .iter()
@@ -169,7 +202,7 @@ pub fn stub_wasi_functions(
                             span: i.span,
                             results,
                             ty,
-                            name: i.item.name.map(|n| NameAnnotation {
+                            name: sig.name.map(|n| NameAnnotation {
                                 name: n.name.to_owned().leak(),
                             }),
                             id,
@@ -178,16 +211,19 @@ pub fn stub_wasi_functions(
                         ImportIndex::ToStub(to_stub.len() as u32 - 1)
                     }
                     _ => {
-                        imports.push(i);
-                        ImportIndex::Keep(imports.len() as u32 - 1)
+                        kept.push(i);
+                        ImportIndex::Keep(kept.len() as u32 - 1)
                     }
                 };
+                // Save the import to `new_import_indices`
                 new_import_indices.push(new_index);
             }
             ModuleField::Func(func) => {
+                // Determine `insert_stubs_index`
                 if insert_stubs_index.is_none() {
                     insert_stubs_index = Some(field_idx);
                 }
+                // Update references to functions in `to_stub`
                 match &mut func.kind {
                     FuncKind::Import(f, ..) => {
                         if should_stub.should_stub(f.module, f.field) {
@@ -207,7 +243,7 @@ pub fn stub_wasi_functions(
                                     if let Some(new_index) = new_import_indices.get(*index as usize)
                                     {
                                         *index = match new_index {
-                                            ImportIndex::ToStub(idx) => *idx + imports.len() as u32,
+                                            ImportIndex::ToStub(idx) => *idx + kept.len() as u32,
                                             ImportIndex::Keep(idx) => *idx,
                                         };
                                     }
@@ -221,7 +257,7 @@ pub fn stub_wasi_functions(
             _ => {}
         }
     }
-    drop(imports);
+    drop(kept);
     drop(types);
 
     let insert_stubs_index = insert_stubs_index
@@ -240,6 +276,7 @@ pub fn stub_wasi_functions(
         },
     ) in to_stub.into_iter().enumerate()
     {
+        // Define the stubbed function
         let instructions = results
             .iter()
             .map(|val_type| {
@@ -279,6 +316,11 @@ pub fn stub_wasi_functions(
             },
             ty,
         };
+        // Swap the import field with the stubbed `function`.
+        // - Before: import_a, [import_b], import_c, func_d, func_e
+        // - After:  import_a,  import_c,  [func_b], func_d, func_e
+        //                                    ↑ insert_stubs_index
+        //                        ↑ fields_index - already_stubbed
         fields.insert(insert_stubs_index, ModuleField::Func(function));
         fields.remove(fields_index - already_stubbed);
     }
