@@ -54,7 +54,7 @@ All dates in this file are in UTC.
 - Support [cargo-binstall](https://crates.io/crates/cargo-binstall) (#59).
 
 #### Changed
-- **(Breaking)** The WASI module will no longer be stubbed by default if `--stub-module` or `--stub-function` is given, making it possible to only stub some of the WASI functions; you can pass `--stub-module wasi_snapshot_preview1,other_module` to restore the old behavior (#17).
+- **(Breaking)** The WASI module will no longer be stubbed by default if `--stub-module` or `--stub-function` is given, making it possible to only stub some of the WASI functions; you can pass `--stub-module wasi_snapshot_preview1,other_module` to restore the old behavior (#60).
 
 ### [0.2.1] - 2026-03-02
 

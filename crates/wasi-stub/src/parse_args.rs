@@ -59,10 +59,10 @@ impl TestArgParser {
         }
     }
 
-    /// Parse `std::env::args_os().skip(1)`.
+    /// Parse arguments from the given iterator, typically `std::env::args_os().skip(1)`.
     fn parse_from<T>(&mut self, args: impl IntoIterator<Item = T>) -> Result<(), String>
     where
-        T: Into<OsString> + Clone,
+        T: Into<OsString>,
     {
         let mut expect_long_flags = HashSet::new();
         let mut expect_short_flags = HashSet::new();
@@ -217,16 +217,19 @@ impl TestArgParser {
 }
 
 impl Args {
+    /// Parses arguments from the command line.
     pub fn new() -> Result<Self, Error> {
         let mut args = Self::from(std::env::args_os().skip(1))?;
         args.binary = std::fs::read(&args.path)?;
         Ok(args)
     }
 
-    /// A utility function only for writing tests. It doesn't check the existence of `path` nor read it into `binary`.
+    /// Parses arguments from the given iterator.
+    ///
+    /// This is only for writing tests. It doesn't check the existence of `path` nor read it into `binary`.
     fn from<T>(args: impl IntoIterator<Item = T>) -> Result<Self, Error>
     where
-        T: Into<OsString> + Clone,
+        T: Into<OsString>,
     {
         let mut arg_parser = TestArgParser::new(
             env!("CARGO_PKG_NAME"),
@@ -292,40 +295,45 @@ Default: 76"
         {
             output_path = Some(PathBuf::from(path));
         }
-        if let Some(stub_functions) = arg_parser.key_values.get("--stub-function") {
-            if let Some(stub_functions) = stub_functions.to_str() {
-                // Make it possible to only stub some of the wasi functions.
-                should_stub.modules.clear();
 
-                for function in stub_functions.split(',') {
-                    let (module, function) = match function.split_once(':') {
-                        Some((m, f)) => (m, f),
-                        None => {
-                            return Err(Error::message(format!("Malformed argument: {function}")))
-                        }
-                    };
-                    let functions = should_stub
-                        .modules
-                        .entry(module.to_owned())
-                        .or_insert(FunctionsToStub::Some(HashSet::new()));
-                    match functions {
-                        FunctionsToStub::All => {}
-                        FunctionsToStub::Some(set) => {
-                            set.insert(function.to_owned());
-                        }
+        let stub_functions = arg_parser
+            .key_values
+            .get("--stub-function")
+            .and_then(|m| m.to_str());
+        let stub_modules = arg_parser
+            .key_values
+            .get("--stub-module")
+            .and_then(|m| m.to_str());
+        if stub_functions.is_some() || stub_modules.is_some() {
+            // Make it possible to only stub some of the wasi functions.
+            should_stub.modules.clear();
+        }
+        if let Some(stub_functions) = stub_functions {
+            for function in stub_functions.split(',') {
+                let (module, function) = match function.split_once(':') {
+                    Some((m, f)) => (m, f),
+                    None => return Err(Error::message(format!("Malformed argument: {function}"))),
+                };
+                let functions = should_stub
+                    .modules
+                    .entry(module.to_owned())
+                    .or_insert(FunctionsToStub::Some(HashSet::new()));
+                match functions {
+                    FunctionsToStub::All => {}
+                    FunctionsToStub::Some(set) => {
+                        set.insert(function.to_owned());
                     }
                 }
             }
         }
-        if let Some(stub_modules) = arg_parser.key_values.get("--stub-module") {
-            if let Some(stub_modules) = stub_modules.to_str() {
-                for module in stub_modules.split(',') {
-                    should_stub
-                        .modules
-                        .insert(module.to_owned(), FunctionsToStub::All);
-                }
+        if let Some(stub_modules) = stub_modules {
+            for module in stub_modules.split(',') {
+                should_stub
+                    .modules
+                    .insert(module.to_owned(), FunctionsToStub::All);
             }
         }
+
         if let Some(value) = arg_parser
             .key_values
             .get("--return-value")
@@ -353,7 +361,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parse_args() {
+    fn test_all_args() {
         let args = Args::from([
             "input.wasm",
             "--stub-function",
@@ -408,6 +416,21 @@ mod tests {
                 .modules
                 .get("wasi_snapshot_preview1")
                 .unwrap(),
+            FunctionsToStub::All
+        ));
+    }
+
+    #[test]
+    fn test_stub_module() {
+        let args = Args::from(["--stub-module", "holodeck", "input.wasm"]).unwrap();
+
+        // Only the explicitly given module should be stubbed.
+        assert_eq!(
+            args.should_stub.modules.keys().collect::<Vec<_>>(),
+            ["holodeck"]
+        );
+        assert!(matches!(
+            args.should_stub.modules.get("holodeck").unwrap(),
             FunctionsToStub::All
         ));
     }
