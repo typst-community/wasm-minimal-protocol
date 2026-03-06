@@ -436,6 +436,22 @@ mod tests {
     }
 
     #[test]
+    fn test_stub_function() {
+        let args =
+            Args::from(["--stub-function", "holodeck:freeze_program", "input.wasm"]).unwrap();
+
+        // Only the explicitly given module should be stubbed.
+        assert_eq!(
+            args.should_stub.modules.keys().collect::<Vec<_>>(),
+            ["holodeck"]
+        );
+        assert!(matches!(
+            args.should_stub.modules.get("holodeck").unwrap(),
+            FunctionsToStub::Some(functions) if functions.contains("freeze_program") && functions.len() == 1
+        ));
+    }
+
+    #[test]
     fn test_repeat_args_override() {
         // This behavior is undocumented, and may change to concatenation in the future.
         let args = Args::from([

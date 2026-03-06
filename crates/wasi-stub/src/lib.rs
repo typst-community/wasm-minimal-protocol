@@ -14,6 +14,7 @@ pub enum FunctionsToStub {
     All,
     Some(HashSet<String>),
 }
+
 #[derive(Debug)]
 pub struct ShouldStub {
     pub modules: HashMap<String, FunctionsToStub>,
