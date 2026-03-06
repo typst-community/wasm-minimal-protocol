@@ -62,9 +62,9 @@ jobs:
           path: wasi-stub-x86_64-apple-darwin
       - name: Make archives
         run: |
-          tar -cvf wasi-stub-x86_64-unknown-linux-musl.tar.gz wasi-stub-x86_64-unknown-linux-musl/wasi-stub
+          tar -czvf wasi-stub-x86_64-unknown-linux-musl.tar.gz wasi-stub-x86_64-unknown-linux-musl/wasi-stub
           zip wasi-stub-x86_64-pc-windows-msvc.zip wasi-stub-x86_64-pc-windows-msvc/wasi-stub.exe
-          tar -cvf wasi-stub-x86_64-apple-darwin.tar.gz wasi-stub-x86_64-apple-darwin/wasi-stub
+          tar -czvf wasi-stub-x86_64-apple-darwin.tar.gz wasi-stub-x86_64-apple-darwin/wasi-stub
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
