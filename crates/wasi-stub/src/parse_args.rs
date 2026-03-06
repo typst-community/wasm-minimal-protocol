@@ -374,13 +374,12 @@ mod tests {
             args.should_stub
                 .modules
                 .keys()
-                .into_iter()
                 .map(String::from)
-                .collect::<HashSet<String>>(),
+                .collect::<HashSet<_>>(),
             ["horrible_module", "holodeck", "env"]
                 .into_iter()
                 .map(String::from)
-                .collect::<HashSet<String>>()
+                .collect::<HashSet<_>>()
         );
         assert!(matches!(
             args.should_stub.modules.get("env").unwrap(),
@@ -433,13 +432,12 @@ mod tests {
             args.should_stub
                 .modules
                 .keys()
-                .into_iter()
                 .map(String::from)
-                .collect::<HashSet<String>>(),
+                .collect::<HashSet<_>>(),
             ["foo", "holodeck"]
                 .into_iter()
                 .map(String::from)
-                .collect::<HashSet<String>>()
+                .collect::<HashSet<_>>()
         );
         assert!(matches!(
             args.should_stub.modules.get("foo").unwrap(),
