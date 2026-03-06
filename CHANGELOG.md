@@ -47,6 +47,11 @@ All dates in this file are in UTC.
 
 ## wasi-stub
 
+### [Unreleased]
+
+#### Fixed
+- `*.tar.gz` for macOS/Linux published to GitHub Releases are now correctly gzipped; files in previous releases have been manually renamed to `*.tar` to match their actual contents (#63).
+
 ### [0.3.0] - 2026-03-06
 
 #### Added
