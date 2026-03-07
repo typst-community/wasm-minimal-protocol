@@ -179,7 +179,7 @@ pub fn stub_wasi_functions(
                 let info = (match &i.items {
                     ImportItems::Single { module, name, sig } => Some((*module, *name, sig)),
                     ImportItems::Group1 { .. } | ImportItems::Group2 { .. } => {
-                        println!("[WARNING] Stubbing compact import groups are not yet supported");
+                        println!("[WARNING] Stubbing compact import groups is not yet supported");
                         None
                     }
                 })
