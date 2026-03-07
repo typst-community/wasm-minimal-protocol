@@ -29,30 +29,6 @@ impl Default for ShouldStub {
         }
     }
 }
-
-enum ImportIndex {
-    ToStub(u32),
-    Keep(u32),
-}
-
-/// A function to be stubbed.
-struct ToStub {
-    /// The index of the original import field in the module.
-    fields_index: usize,
-    /// The span of the original import field.
-    span: wast::token::Span,
-    /// The results types of the function.
-    results: Vec<ValType<'static>>,
-    /// The type of the function, with parameters and results.
-    ty: TypeUse<'static, FunctionType<'static>>,
-    /// The name of the function.
-    name: Option<NameAnnotation<'static>>,
-    /// The identifier used during name resolution to refer to the function from the rest of the module.
-    id: Option<Id<'static>>,
-    /// The parameters of the function.
-    locals: Vec<Local<'static>>,
-}
-
 impl ShouldStub {
     fn should_stub(&self, module: &str, function: &str) -> bool {
         if let Some(functions) = self.modules.get(module) {
@@ -66,48 +42,90 @@ impl ShouldStub {
     }
 }
 
-/// Make an `Id` static
-fn static_id(id: Option<Id>) -> Option<Id<'static>> {
-    id.map(|id| {
-        let mut name = id.name().to_owned();
+enum ImportIndex {
+    ToStub(u32),
+    Keep(u32),
+}
+
+/// A function to be stubbed.
+struct ToStub {
+    /// The index of the original import field in the module.
+    fields_index: usize,
+    /// The span of the original import field.
+    span: wast::token::Span,
+    /// The type of the function, with parameters and results.
+    ty: TypeUse<'static, FunctionType<'static>>,
+    /// The identifier used during name resolution to refer to the function from the rest of the module.
+    id: Option<Id<'static>>,
+    /// The name of the function.
+    name: Option<NameAnnotation<'static>>,
+    /// The parameters of the function.
+    locals: Vec<Local<'static>>,
+    /// The results types of the function.
+    results: Vec<ValType<'static>>,
+}
+
+/// Make the lifetime of things in WASM `'static`.
+///
+/// The return values will be used as fields to construct the stubbed functions in the for loop at the very end of the function [`stub_wasi_functions`].
+trait MakeStatic {
+    /// The static version of `Self`.
+    type S;
+    /// Make its lifetime `'static`.
+    #[must_use]
+    fn make_static(&self) -> Self::S;
+}
+impl MakeStatic for Id<'_> {
+    type S = Id<'static>;
+    fn make_static(&self) -> Self::S {
+        let mut name = self.name().to_owned();
         name.insert(0, '$');
         let parser = Box::leak(Box::new(
             wast::parser::ParseBuffer::new(name.leak()).unwrap(),
         ));
         wast::parser::parse::<Id>(parser).unwrap()
-    })
+    }
 }
-/// Make a `NameAnnotation` static
-fn static_name_annotation(name: Option<NameAnnotation>) -> Option<NameAnnotation<'static>> {
-    name.map(|name| NameAnnotation {
-        name: String::from(name.name).leak(),
-    })
+impl MakeStatic for NameAnnotation<'_> {
+    type S = NameAnnotation<'static>;
+    fn make_static(&self) -> Self::S {
+        NameAnnotation {
+            name: String::from(self.name).leak(),
+        }
+    }
 }
-/// Make a `ValType` static
-fn static_val_type(val_type: &ValType) -> ValType<'static> {
-    // FIXME: This long match dance is _only_ to make the lifetime of ty 'static. A lot of things have to go through this dance (see the `static_*` function...)
-    // Instead, we should write the new function here, in place, by replacing `field`. This is currently done in the for loop at the very end of the function `stub_wasi_functions`.
-    // THEN, at the end of the loop, swap every function in its right place. No need to do more!
-    match val_type {
-        ValType::I32 => ValType::I32,
-        ValType::I64 => ValType::I64,
-        ValType::F32 => ValType::F32,
-        ValType::F64 => ValType::F64,
-        ValType::V128 => ValType::V128,
-        ValType::Ref(r) => ValType::Ref(RefType {
-            nullable: r.nullable,
-            heap: match r.heap {
-                HeapType::Concrete(index) => HeapType::Concrete(match index {
-                    Index::Num(n, s) => Index::Num(n, s),
-                    Index::Id(id) => Index::Id(static_id(Some(id)).unwrap()),
-                }),
-                HeapType::Exact(index) => HeapType::Exact(match index {
-                    Index::Num(n, s) => Index::Num(n, s),
-                    Index::Id(id) => Index::Id(static_id(Some(id)).unwrap()),
-                }),
-                HeapType::Abstract { shared, ty } => HeapType::Abstract { shared, ty },
-            },
-        }),
+impl MakeStatic for ValType<'_> {
+    type S = ValType<'static>;
+    fn make_static(&self) -> Self::S {
+        // FIXME: This long match dance might be unnecessary or can be simplified.
+        match self {
+            ValType::I32 => ValType::I32,
+            ValType::I64 => ValType::I64,
+            ValType::F32 => ValType::F32,
+            ValType::F64 => ValType::F64,
+            ValType::V128 => ValType::V128,
+            ValType::Ref(r) => ValType::Ref(RefType {
+                nullable: r.nullable,
+                heap: match r.heap {
+                    HeapType::Concrete(index) => HeapType::Concrete(match index {
+                        Index::Num(n, s) => Index::Num(n, s),
+                        Index::Id(id) => Index::Id(id.make_static()),
+                    }),
+                    HeapType::Exact(index) => HeapType::Exact(match index {
+                        Index::Num(n, s) => Index::Num(n, s),
+                        Index::Id(id) => Index::Id(id.make_static()),
+                    }),
+                    HeapType::Abstract { shared, ty } => HeapType::Abstract { shared, ty },
+                },
+            }),
+        }
+    }
+}
+impl<T: MakeStatic> MakeStatic for Option<T> {
+    type S = Option<T::S>;
+    #[inline]
+    fn make_static(&self) -> Self::S {
+        self.as_ref().map(|t| t.make_static())
     }
 }
 
@@ -190,28 +208,23 @@ pub fn stub_wasi_functions(
                         else {
                             continue;
                         };
-                        let id = static_id(sig.id);
-                        let locals: Vec<Local> = func_typ
-                            .params
-                            .iter()
-                            .map(|(id, name, val_type)| Local {
-                                id: static_id(*id),
-                                name: static_name_annotation(*name),
-                                ty: static_val_type(val_type),
-                            })
-                            .collect();
-                        let results: Vec<_> =
-                            func_typ.results.iter().map(static_val_type).collect();
                         to_stub.push(ToStub {
                             fields_index: field_idx,
                             span: i.span,
-                            results,
                             ty,
-                            name: sig.name.map(|n| NameAnnotation {
-                                name: n.name.to_owned().leak(),
-                            }),
-                            id,
-                            locals,
+                            // Make fields 'static
+                            id: sig.id.make_static(),
+                            name: sig.name.make_static(),
+                            locals: func_typ
+                                .params
+                                .iter()
+                                .map(|(id, name, val_type)| Local {
+                                    id: id.make_static(),
+                                    name: name.make_static(),
+                                    ty: val_type.make_static(),
+                                })
+                                .collect(),
+                            results: func_typ.results.iter().map(|r| r.make_static()).collect(),
                         });
                         ImportIndex::ToStub(to_stub.len() as u32 - 1)
                     }
@@ -273,11 +286,11 @@ pub fn stub_wasi_functions(
         ToStub {
             fields_index,
             span,
-            results,
             ty,
             name,
             id,
             locals,
+            results,
         },
     ) in to_stub.into_iter().enumerate()
     {
