@@ -157,25 +157,30 @@ pub fn stub_wasi_functions(
         match field {
             ModuleField::Type(t) => types.push(t),
             ModuleField::Import(i) => {
-                let (module, field, sig) = match &i.items {
-                    ImportItems::Single { module, name, sig } => (*module, *name, sig),
-                    _ => {
+                // If the import is a function, extract its module, name, signature, and type (as index in `types`).
+                let info = (match &i.items {
+                    ImportItems::Single { module, name, sig } => Some((*module, *name, sig)),
+                    ImportItems::Group1 { .. } | ImportItems::Group2 { .. } => {
                         println!("[WARNING] Stubbing compact import groups are not yet supported");
-                        continue;
+                        None
                     }
-                };
+                })
+                .and_then(|(module, name, sig)| {
+                    if let ItemKind::Func(typ) = &sig.kind
+                        && let Some(Index::Num(index, _)) = typ.index
+                    {
+                        Some((module, name, sig, index as usize))
+                    } else {
+                        None
+                    }
+                });
 
-                let typ = match &sig.kind {
-                    ItemKind::Func(typ) => typ.index.and_then(|index| match index {
-                        Index::Num(index, _) => Some(index as usize),
-                        Index::Id(_) => None,
-                    }),
-                    _ => None,
-                };
                 // Push the import to either `to_stub` or `kept`
-                let new_index = match typ {
-                    Some(type_index) if should_stub.should_stub(module, field) => {
-                        println!("Stubbing function {}::{}", module, field);
+                let new_index = match info {
+                    Some((module, name, sig, type_index))
+                        if should_stub.should_stub(module, name) =>
+                    {
+                        println!("Stubbing function {}::{}", module, name);
                         let typ = &types[type_index];
                         let ty = TypeUse::new_with_index(Index::Num(type_index as u32, typ.span));
                         let wast::core::TypeDef {
