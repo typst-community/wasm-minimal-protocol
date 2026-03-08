@@ -19,18 +19,13 @@ extern "wasm" fn wasm_trap() -> Int =
 // FixedArray[Byte] and Bytes have the same representation; this cast is free.
 fn to_bytes(arr : FixedArray[Byte]) -> Bytes = "%identity"
 
-// The dummy bs.length() prevents MoonBit from scheduling a decref on bs
-// before the host has finished reading the buffer.
 fn send_result(bs : Bytes) -> Unit {
   send_result_to_host_raw(data_ptr(bs), bs.length())
-  let _ = bs.length()
 }
 
-// Same rationale: keep bs alive until after the host write completes.
 fn write_args(arr : FixedArray[Byte]) -> Unit {
   let bs = to_bytes(arr)
   write_args_to_buffer_raw(data_ptr(bs))
-  let _ = bs.length()
 }
 
 // ===
