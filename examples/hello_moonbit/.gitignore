@@ -1,4 +1,4 @@
-target/
 _build/
 .mooncakes/
+.moonagent/
 hello.wasm
