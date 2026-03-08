@@ -59,6 +59,18 @@ jobs:
           fi
           ~/.ghc-wasm/add_to_github_path.sh
 
+      - name: Cache MoonBit toolchain for hello_moonbit
+        uses: actions/cache@v5
+        with:
+          path: ~/.moon
+          key: moonbit-${{ runner.os }}
+      - name: Install MoonBit toolchain for hello_moonbit
+        run: |
+          if [ ! -f ~/.moon/bin/moon ]; then
+            curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          fi
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown, wasm32-wasip1

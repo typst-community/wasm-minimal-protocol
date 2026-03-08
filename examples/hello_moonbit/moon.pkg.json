@@ -1,0 +1,16 @@
+{
+  "link": {
+    "wasm": {
+      "exports": [
+        "hello",
+        "double_it",
+        "concatenate",
+        "shuffle",
+        "returns_ok",
+        "returns_err",
+        "will_panic"
+      ],
+      "export-memory-name": "memory"
+    }
+  }
+}

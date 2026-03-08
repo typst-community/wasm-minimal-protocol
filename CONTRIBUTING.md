@@ -9,6 +9,7 @@ To run the tests, you will need:
 - A zig compiler: <https://ziglang.org/learn/getting-started/#installing-zig>
 - A TinyGo compiler: <https://tinygo.org/getting-started/install/>
 - The GHC WebAssembly backend for Haskell: <https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta>
+- The MoonBit toolchain: <https://www.moonbitlang.com/download/>
 
 Then, you can run the tests with `cargo test`.
 

@@ -279,3 +279,29 @@ fn test_haskell() {
     wasi_stub_with_args(dir_path.join("hello.wasm"), &["--return-value", "0"]);
     typst_compile(dir_path);
 }
+
+#[test]
+fn test_moonbit() {
+    let dir_path = Path::new(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../examples/hello_moonbit"
+    ));
+
+    let build_moonbit = Command::new("moon")
+        .arg("build")
+        .arg("--target")
+        .arg("wasm")
+        .arg("--release")
+        .current_dir(dir_path)
+        .status()
+        .unwrap();
+    if !build_moonbit.success() {
+        panic!("Compiling with moon failed");
+    }
+    std::fs::copy(
+        dir_path.join("_build/wasm/release/build/hello.wasm"),
+        dir_path.join("hello.wasm"),
+    )
+    .unwrap();
+    typst_compile(dir_path);
+}
