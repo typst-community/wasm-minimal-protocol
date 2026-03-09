@@ -108,11 +108,16 @@ jobs:
 
       - name: Run pre-hook hook
         run: |
-          rm target/example-result/ -rf # Clear previous cache
-          ./.githooks/pre-push
-        env:
-          CARGO_TEST_SAVE_EXAMPLE_RESULT: "1"
+          rm target/example-result/ -rf # Clear cache to avoid ghost files
 
+          CARGO_TEST_SAVE_EXAMPLE_RESULT=1 ./.githooks/pre-push
+
+          echo '# Sizes of the resulting binaries' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          pushd ./target/example-result/
+          ls --sort=size --size --human-readable -1 *.wasm >> "$GITHUB_STEP_SUMMARY"
+          popd
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
       - name: Upload example-result
         uses: actions/upload-artifact@v7
         with:
