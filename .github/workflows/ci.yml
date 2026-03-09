@@ -106,7 +106,10 @@ jobs:
           typst-version: 0.8.0
           executable-name: typst-0.8
 
-      - run: ./.githooks/pre-push
+      - name: Run pre-hook hook
+        run: |
+          rm target/example-result/ -rf # Clear previous cache
+          ./.githooks/pre-push
         env:
           CARGO_TEST_SAVE_EXAMPLE_RESULT: "1"
 
