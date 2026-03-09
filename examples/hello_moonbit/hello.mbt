@@ -48,9 +48,7 @@ pub fn hello() -> Int {
 pub fn double_it(arg1_len : Int) -> Int {
   let result = FixedArray::make(arg1_len * 2, b'\x00')
   write_args(result)
-  for i in 0..<arg1_len {
-    result[arg1_len + i] = result[i]
-  }
+  result.blit_to(result, len=arg1_len, dst_offset=arg1_len)
   send_result(to_bytes(result))
   0
 }
@@ -59,14 +57,17 @@ pub fn double_it(arg1_len : Int) -> Int {
 pub fn concatenate(arg1_len : Int, arg2_len : Int) -> Int {
   let args = FixedArray::make(arg1_len + arg2_len, b'\x00')
   write_args(args)
+
   let result = FixedArray::make(arg1_len + 1 + arg2_len, b'\x00')
-  for i in 0..<arg1_len {
-    result[i] = args[i]
-  }
+  args.blit_to(result, len=arg1_len)
   result[arg1_len] = b'*'
-  for i in 0..<arg2_len {
-    result[arg1_len + 1 + i] = args[arg1_len + i]
-  }
+  args.blit_to(
+    result,
+    len=arg2_len,
+    src_offset=arg1_len,
+    dst_offset=arg1_len + 1,
+  )
+
   send_result(to_bytes(result))
   0
 }
@@ -76,25 +77,31 @@ pub fn shuffle(arg1_len : Int, arg2_len : Int, arg3_len : Int) -> Int {
   let total_len = arg1_len + arg2_len + arg3_len
   let args = FixedArray::make(total_len, b'\x00')
   write_args(args)
+
   // Result layout: arg3 '-' arg1 '-' arg2
   let result = FixedArray::make(total_len + 2, b'\x00')
   let mut pos = 0
-  for i in 0..<arg3_len {
-    result[pos] = args[arg1_len + arg2_len + i]
-    pos += 1
-  }
+
+  args.blit_to(
+    result,
+    len=arg3_len,
+    src_offset=arg1_len + arg2_len,
+    dst_offset=pos,
+  )
+  pos += arg3_len
+
   result[pos] = b'-'
   pos += 1
-  for i in 0..<arg1_len {
-    result[pos] = args[i]
-    pos += 1
-  }
+
+  args.blit_to(result, len=arg1_len, dst_offset=pos)
+  pos += arg1_len
+
   result[pos] = b'-'
   pos += 1
-  for i in 0..<arg2_len {
-    result[pos] = args[arg1_len + i]
-    pos += 1
-  }
+
+  args.blit_to(result, len=arg2_len, src_offset=arg1_len, dst_offset=pos)
+  pos += arg2_len
+
   send_result(to_bytes(result))
   0
 }
