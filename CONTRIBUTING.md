@@ -14,6 +14,8 @@ Then, you can run the tests with `cargo test`.
 
 You may also test specific examples. For example, running `cargo test test_rust` only requires the Rust toolchain.
 
+If `$CARGO_TEST_SAVE_EXAMPLE_RESULT` is set to any non-empty string, the resulting `hello.{wasm,pdf}` from `examples/hello_*/` will be saved to `target/example-result/`. This is useful for comparing examples, as some examples can be built in multiple ways.
+
 > [!NOTE]
 >
 > At present, the tests are guaranteed to pass only on Linux.

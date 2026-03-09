@@ -102,6 +102,35 @@ fn typst_compile(path: &Path) {
     }
 }
 
+/// Save resulting `hello.{wasm,pdf}` to `target/example-result/` if `$CARGO_TEST_SAVE_EXAMPLE_RESULT` is set to any non-empty string.
+///
+/// The `name` is necessary to distinguish results from different build methods for the same example.
+/// For example, `rust.wasm32-unknown-unknown` and `rust.wasm32-wasip1`.
+fn save_result(path: &Path, name: &str) {
+    if std::env::var_os("CARGO_TEST_SAVE_EXAMPLE_RESULT")
+        .unwrap_or_default()
+        .is_empty()
+    {
+        // Skip saving
+        return;
+    }
+
+    let result_dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/example-result/");
+    std::fs::create_dir_all(result_dir).unwrap();
+    std::fs::copy(
+        path.join("hello.wasm"),
+        Path::new(result_dir)
+            .join(name)
+            .with_added_extension("wasm"),
+    )
+    .unwrap();
+    std::fs::copy(
+        path.join("hello.pdf"),
+        Path::new(result_dir).join(name).with_added_extension("pdf"),
+    )
+    .unwrap();
+}
+
 #[test]
 fn test_c() {
     let dir_path = Path::new(concat!(
@@ -125,6 +154,7 @@ fn test_c() {
     }
     wasi_stub(dir_path.join("hello.wasm"));
     typst_compile(dir_path);
+    save_result(dir_path, "c");
 }
 
 #[test]
@@ -158,6 +188,7 @@ fn test_rust() {
             wasi_stub(dir_path.join("hello.wasm"));
         }
         typst_compile(dir_path);
+        save_result(dir_path, &format!("rust.{}", target));
     }
 }
 
@@ -194,6 +225,7 @@ fn test_zig() {
             wasi_stub(dir_path.join("hello.wasm"));
         }
         typst_compile(dir_path);
+        save_result(dir_path, &format!("zig.{}", target));
     }
 }
 
@@ -216,6 +248,7 @@ fn test_go() {
         panic!("Compiling with tinygo for wasm-unknown failed");
     }
     typst_compile(dir_path);
+    save_result(dir_path, "go.wasm-unknown");
 
     let build_go_wasi = Command::new("tinygo")
         .arg("build")
@@ -231,6 +264,7 @@ fn test_go() {
     }
     wasi_stub(dir_path.join("hello.wasm"));
     typst_compile(dir_path);
+    save_result(dir_path, "go.wasm-wasip1");
 }
 
 #[test]
@@ -278,4 +312,5 @@ fn test_haskell() {
     }
     wasi_stub_with_args(dir_path.join("hello.wasm"), &["--return-value", "0"]);
     typst_compile(dir_path);
+    save_result(dir_path, "haskell");
 }
