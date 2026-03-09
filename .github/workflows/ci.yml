@@ -108,6 +108,18 @@ jobs:
 
       - run: ./.githooks/pre-push
 
+      - name: Archive hello.wasm files
+        shell: bash
+        run: |
+          cd examples
+          7z a hello_wasm.zip hello_*/hello.wasm
+      - name: Upload hello.wasm files
+        uses: actions/upload-artifact@v7
+        with:
+          name: hello_wasm.zip
+          path: examples/hello_wasm.zip
+          archive: false
+
   check-wasi-stub-install:
     runs-on: ubuntu-latest
     steps:
