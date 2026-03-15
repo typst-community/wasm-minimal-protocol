@@ -1,7 +1,7 @@
 name: Check
 
 env:
-  EM_VERSION: 1.39.18
+  EM_VERSION: 5.0.2
   EM_CACHE_FOLDER: "emsdk-cache"
 
 on:
@@ -30,20 +30,20 @@ jobs:
       - name: Cache TinyGo for hello_go
         uses: actions/cache@v5
         with:
-          path: tinygo_0.37.0_amd64.deb
-          key: tinygo-0.37.0-${{ runner.os }}
+          path: tinygo_0.40.1_amd64.deb
+          key: tinygo-0.40.1-${{ runner.os }}
       - name: Install TinyGo for hello_go
         run: |
-          if [ ! -f tinygo_0.37.0_amd64.deb ]; then
-            wget https://github.com/tinygo-org/tinygo/releases/download/v0.37.0/tinygo_0.37.0_amd64.deb
+          if [ ! -f tinygo_0.40.1_amd64.deb ]; then
+            wget https://github.com/tinygo-org/tinygo/releases/download/v0.40.1/tinygo_0.40.1_amd64.deb
           fi
-          sudo dpkg -i tinygo_0.37.0_amd64.deb
+          sudo dpkg -i tinygo_0.40.1_amd64.deb
           export PATH=$PATH:/usr/local/bin
 
       - name: Install Zig for hello_zig
         uses: mlugg/setup-zig@v2
         with:
-          version: 0.13.0
+          version: 0.15.2
 
       - name: Cache GHC WebAssembly backend for hello_haskell
         uses: actions/cache@v5
@@ -63,10 +63,10 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.moon
-          key: moonbit-0.8.2+8cca5f22a-${{ runner.os }}
+          key: moonbit-0.8.3+cd28f524e-${{ runner.os }}
       - name: Install MoonBit toolchain for hello_moonbit
         env:
-          MOONBIT_INSTALL_VERSION: 0.8.2+8cca5f22a
+          MOONBIT_INSTALL_VERSION: 0.8.3+cd28f524e
         run: |
           if [ ! -f ~/.moon/bin/moon ]; then
             curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
