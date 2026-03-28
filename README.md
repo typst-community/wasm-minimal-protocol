@@ -55,6 +55,8 @@ Some examples require [wasi-stub](#wasi-stub). You can [install wasi-stub](./cra
 If you have all the required dependencies, you may build all examples by running `cargo test`.
 Refer to [CONTRIBUTING](./CONTRIBUTING.md) for details.
 
+See also [WASM plugin development — Best of Typst (TCDM)](https://ydx-2147483647.github.io/best-of-typst/#wasm), which lists Zig wrapper, C protocol generator, and other projects that may facilitate development of plugins.
+
 ## wasi-stub
 
 The runtime used by Typst does not allow the plugin to import any function (beside the ones used by the protocol). In particular, if your plugin is compiled for [WASI](https://wasi.dev/), it will not be able to be loaded by Typst.
