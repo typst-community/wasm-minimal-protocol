@@ -31,7 +31,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo build --release --package wasi-stub
       - run: cargo publish --dry-run --package wasi-stub
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: wasi-stub-${{ matrix.job.target }}
           path: target/release/wasi-stub${{ matrix.job.suffix }}
