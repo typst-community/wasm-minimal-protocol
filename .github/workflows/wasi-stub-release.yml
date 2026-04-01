@@ -46,17 +46,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Download linux
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: wasi-stub-x86_64-unknown-linux-musl
           path: wasi-stub-x86_64-unknown-linux-musl
       - name: Download windows
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: wasi-stub-x86_64-pc-windows-msvc
           path: wasi-stub-x86_64-pc-windows-msvc
       - name: Download macos
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: wasi-stub-x86_64-apple-darwin
           path: wasi-stub-x86_64-apple-darwin
