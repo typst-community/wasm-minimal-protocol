@@ -1,7 +1,9 @@
 [package]
 name = "wasm-minimal-protocol"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
+readme = "README.md" # Generated from the repo README; see the notes in .gitignore there
+authors = ["Astrale"]
 license-file = "../../LICENSE"
 description = "Typst plugin helper macro library"
 repository = "https://github.com/typst-community/wasm-minimal-protocol"
