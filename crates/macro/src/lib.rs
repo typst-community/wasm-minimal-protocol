@@ -18,7 +18,7 @@
 //! }
 //! ```
 //!
-//! See also the [full example project](../../../examples/hello_rust/).
+//! See also the [full example project](https://github.com/typst-community/wasm-minimal-protocol/blob/HEAD/examples/hello_rust/).
 //!
 //! # Protocol
 //!
@@ -134,7 +134,7 @@ pub fn initiate_protocol(stream: TokenStream) -> TokenStream {
 /// }
 /// ```
 ///
-/// See also the [full example project](../../../examples/hello_rust/).
+/// See also the [full example project](https://github.com/typst-community/wasm-minimal-protocol/blob/HEAD/examples/hello_rust/).
 #[proc_macro_attribute]
 pub fn wasm_func(_: TokenStream, item: TokenStream) -> TokenStream {
     let mut item = proc_macro2::TokenStream::from(item);
