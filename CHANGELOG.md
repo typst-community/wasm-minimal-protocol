@@ -21,12 +21,13 @@ All dates in this file are in UTC.
 
 ## wasm-minimal-protocol
 
-### [Unreleased]
+### [0.2.0] - 2026-04-12
 
 #### Added
 - More flexibility in the types of arguments and returns (#41):
   - Argument/input type: `&mut [u8]` is now supported. Previously, only `&[u8]` was supported.
   - Return/output type: `&[u8]`, `Box<[u8]>`, and their `Result<T, E>` variants are now supported. Previously, only `Vec<u8>` and `Result<Vec<u8>, E>` were supported.
+- Set up [trusted publishing on crates.io](https://crates.io/docs/trusted-publishing) and make a release script (#73).
 
 #### Changed
 - Restructure the project to allow inclusion as a git submodule in other projects (#28 and #31).
