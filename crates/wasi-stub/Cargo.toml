@@ -6,6 +6,8 @@ authors = ["Arnaud Golfouse <arnaud.golfouse@laposte.net>"]
 license-file = "../../LICENSE"
 description = "Detect all WASI-related imports in a WebAssembly file, and replace them with stubs that do nothing"
 repository = "https://github.com/typst-community/wasm-minimal-protocol"
+categories = ["wasm", "command-line-utilities", "development-tools::build-utils"]
+keywords = ["typst", "plugin", "emcc", "wasm32-wasi-ghc", "wbindgen_placeholder"]
 
 [dependencies]
 wasmprinter = "0.245"

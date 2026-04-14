@@ -7,6 +7,8 @@ authors = ["Astrale"]
 license-file = "../../LICENSE"
 description = "Typst plugin helper macro library"
 repository = "https://github.com/typst-community/wasm-minimal-protocol"
+categories = ["wasm", "development-tools::ffi", "no-std"]
+keywords = ["typst", "plugin", "wasm", "WebAssembly", "bytes"]
 
 [lib]
 proc-macro = true
