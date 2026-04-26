@@ -3,12 +3,12 @@ name: Check
 env:
   # These env vars are only used for writing this workflow and will not be directly read by programs.
   # To avoid conflicts, we add the `X_` prefix.
-  X_C_COMPILER_VERSION: 5.0.2
+  X_C_COMPILER_VERSION: 5.0.6
   X_C_CACHE_FOLDER: "emsdk-cache"
-  X_GO_COMPILER_VERSION: 0.40.1
-  X_ZIG_COMPILER_VERSION: 0.15.2
+  X_GO_COMPILER_VERSION: 0.41.1
+  X_ZIG_COMPILER_VERSION: 0.16.0
   X_HASKELL_COMPILER_VERSION: "9.14"
-  X_MOONBIT_COMPILER_VERSION: 0.8.3+cd28f524e
+  X_MOONBIT_COMPILER_VERSION: 0.9.0+9f1423bcb
 
 on:
   push:
