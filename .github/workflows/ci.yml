@@ -1,8 +1,14 @@
 name: Check
 
 env:
-  EM_VERSION: 5.0.2
-  EM_CACHE_FOLDER: "emsdk-cache"
+  # These env vars are only used for writing this workflow and will not be directly read by programs.
+  # To avoid conflicts, we add the `X_` prefix.
+  X_C_COMPILER_VERSION: 5.0.6
+  X_C_CACHE_FOLDER: "emsdk-cache"
+  X_GO_COMPILER_VERSION: 0.41.1
+  X_ZIG_COMPILER_VERSION: 0.16.0
+  X_HASKELL_COMPILER_VERSION: "9.14"
+  X_MOONBIT_COMPILER_VERSION: 0.9.0+9f1423bcb
 
 on:
   push:
@@ -17,42 +23,44 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Cache Emscripten for hello_c
+        # This also caches system libraries generated during build time.
+        # https://github.com/emscripten-core/setup-emsdk#cache
         uses: actions/cache@v5
         with:
-          path: ${{env.EM_CACHE_FOLDER}}
-          key: emsdk-${{env.EM_VERSION}}-${{ runner.os }}
+          path: ${{env.X_C_CACHE_FOLDER}}
+          key: emsdk-${{env.X_C_COMPILER_VERSION}}-${{ runner.os }}
       - name: Install Emscripten for hello_c
         uses: mymindstorm/setup-emsdk@v14
         with:
-          version: ${{env.EM_VERSION}}
-          actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
+          version: ${{env.X_C_COMPILER_VERSION}}
+          actions-cache-folder: ${{env.X_C_CACHE_FOLDER}}
 
       - name: Cache TinyGo for hello_go
         uses: actions/cache@v5
         with:
-          path: tinygo_0.40.1_amd64.deb
-          key: tinygo-0.40.1-${{ runner.os }}
+          path: tinygo_${{env.X_GO_COMPILER_VERSION}}_amd64.deb
+          key: tinygo-${{env.X_GO_COMPILER_VERSION}}-${{ runner.os }}
       - name: Install TinyGo for hello_go
         run: |
-          if [ ! -f tinygo_0.40.1_amd64.deb ]; then
-            wget https://github.com/tinygo-org/tinygo/releases/download/v0.40.1/tinygo_0.40.1_amd64.deb
+          if [ ! -f tinygo_${{env.X_GO_COMPILER_VERSION}}_amd64.deb ]; then
+            wget https://github.com/tinygo-org/tinygo/releases/download/v${{env.X_GO_COMPILER_VERSION}}/tinygo_${{env.X_GO_COMPILER_VERSION}}_amd64.deb
           fi
-          sudo dpkg -i tinygo_0.40.1_amd64.deb
+          sudo dpkg -i tinygo_${{env.X_GO_COMPILER_VERSION}}_amd64.deb
           export PATH=$PATH:/usr/local/bin
 
       - name: Install Zig for hello_zig
         uses: mlugg/setup-zig@v2
         with:
-          version: 0.15.2
+          version: ${{env.X_ZIG_COMPILER_VERSION}}
 
       - name: Cache GHC WebAssembly backend for hello_haskell
         uses: actions/cache@v5
         with:
           path: ~/.ghc-wasm
-          key: ghc-wasm-meta-9.14-${{ runner.os }}
+          key: ghc-wasm-meta-${{env.X_HASKELL_COMPILER_VERSION}}-${{ runner.os }}
       - name: Install GHC WebAssembly backend for hello_haskell
         env:
-          FLAVOUR: "9.14"
+          FLAVOUR: ${{env.X_HASKELL_COMPILER_VERSION}}
         run: |
           if [ ! -d ~/.ghc-wasm ]; then
             curl https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta/-/raw/master/bootstrap.sh | sh
@@ -63,10 +71,10 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.moon
-          key: moonbit-0.8.3+cd28f524e-${{ runner.os }}
+          key: moonbit-${{env.X_MOONBIT_COMPILER_VERSION}}-${{ runner.os }}
       - name: Install MoonBit toolchain for hello_moonbit
         env:
-          MOONBIT_INSTALL_VERSION: 0.8.3+cd28f524e
+          MOONBIT_INSTALL_VERSION: ${{env.X_MOONBIT_COMPILER_VERSION}}
         run: |
           if [ ! -f ~/.moon/bin/moon ]; then
             curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
@@ -87,18 +95,23 @@ jobs:
       - name: Setup Typst compilers
         uses: typst-community/setup-typst@v5
         with:
-          typst-versions-map: |
-            {
-              "typst": { "version": "v0.14.2" },
-              "typst-0.13": { "version": "v0.13.1" },
-              "typst-0.12": { "version": "v0.12.0" },
-              "typst-0.11": { "version": "v0.11.1" },
-              "typst-0.10": { "version": "v0.10.0" },
-              "typst-0.9": { "version": "v0.9.0" },
-              "typst-0.8": { "version": "v0.8.0" }
-            }
+          typst-versions-yaml: |
+            typst:
+              version: v0.14.2
+            typst-0.13:
+              version: v0.13.1
+            typst-0.12:
+              version: v0.12.0
+            typst-0.11:
+              version: v0.11.1
+            typst-0.10:
+              version: v0.10.0
+            typst-0.9:
+              version: v0.9.0
+            typst-0.8:
+              version: v0.8.0
 
-      - name: Run pre-hook hook
+      - name: Run pre-push hook
         run: |
           rm target/example-result/ -rf # Clear cache to avoid ghost files
 

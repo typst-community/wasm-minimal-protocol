@@ -44,3 +44,18 @@ The script `.githooks/pre-push` will be run each time you `git push` (except if 
 //! Minimum supported Typst version: 0.13.0
 //! Before that, decoding CBOR used a different function.
 ```
+
+## Update the versions of compilers
+
+The [examples](./README.md#examples) in this repository use a few compilers.
+Their versions in [`ci.yml`](./.github/workflows/ci.yml) should be kept up to date.
+
+Here are the notes for finding the latest versions:
+
+- `hello_c`: [Emscripten change log](https://github.com/emscripten-core/emscripten/blob/main/ChangeLog.md)
+- `hello_go`: [TinyGo releases](https://github.com/tinygo-org/tinygo/releases)
+- `hello_zig`: [Zig downloads index](https://ziglang.org/download/)
+- `hello_haskell`: [the default `$FLAVOUR` in `setup.sh`](https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta/-/blob/master/setup.sh?ref_type=heads#L5)
+- `hello_moonbit`: [MoonBit updates](https://www.moonbitlang.com/updates)
+
+As for `hello_rust`, the Rust toolchain is quite stable. Therefore, we just specify `stable` and don't need to update it manually.
