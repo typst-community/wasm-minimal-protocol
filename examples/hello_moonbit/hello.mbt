@@ -10,10 +10,7 @@ fn __write_args_to_buffer(ptr : Int) = "typst_env" "wasm_minimal_protocol_write_
 ///|
 /// Returns a raw pointer to the first data byte of `bytes`.
 #borrow(bytes)
-extern "wasm" fn _as_ptr(bytes : Bytes) -> Int =
-  #|(func (param i32) (result i32)
-  #|  (i32.add (local.get 0) (i32.const 8)))
-// `Bytes` have 8-byte headers, so this is not `%identity`.
+fn _as_ptr(bytes : Bytes) -> Int = "%identity"
 // Note that the ABI for `Bytes` is unstable. Refer to README for further explanation.
 
 ///|
