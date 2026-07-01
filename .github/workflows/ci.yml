@@ -134,7 +134,7 @@ jobs:
   check-wasi-stub-install:
     runs-on: ubuntu-latest
     steps:
-      - uses: taiki-e/install-action@v2
+      - uses: taiki-e/install-action@v2.82.2
         with:
           tool: wasi-stub
       - run: wasi-stub --help
