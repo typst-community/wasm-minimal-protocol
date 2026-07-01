@@ -25,7 +25,7 @@ jobs:
       - name: Cache Emscripten for hello_c
         # This also caches system libraries generated during build time.
         # https://github.com/emscripten-core/setup-emsdk#cache
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.5
         with:
           path: ${{env.X_C_CACHE_FOLDER}}
           key: emsdk-${{env.X_C_COMPILER_VERSION}}-${{ runner.os }}
@@ -36,7 +36,7 @@ jobs:
           actions-cache-folder: ${{env.X_C_CACHE_FOLDER}}
 
       - name: Cache TinyGo for hello_go
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.5
         with:
           path: tinygo_${{env.X_GO_COMPILER_VERSION}}_amd64.deb
           key: tinygo-${{env.X_GO_COMPILER_VERSION}}-${{ runner.os }}
@@ -54,7 +54,7 @@ jobs:
           version: ${{env.X_ZIG_COMPILER_VERSION}}
 
       - name: Cache GHC WebAssembly backend for hello_haskell
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.5
         with:
           path: ~/.ghc-wasm
           key: ghc-wasm-meta-${{env.X_HASKELL_COMPILER_VERSION}}-${{ runner.os }}
@@ -68,7 +68,7 @@ jobs:
           ~/.ghc-wasm/add_to_github_path.sh
 
       - name: Cache MoonBit toolchain for hello_moonbit
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.5
         with:
           path: ~/.moon
           key: moonbit-${{env.X_MOONBIT_COMPILER_VERSION}}-${{ runner.os }}
@@ -85,7 +85,7 @@ jobs:
         with:
           targets: wasm32-unknown-unknown, wasm32-wasip1
       - name: Cache Rust
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.5
         with:
           path: |
             ~/.cargo
