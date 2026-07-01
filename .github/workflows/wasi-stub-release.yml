@@ -27,7 +27,7 @@ jobs:
     name: build ${{ matrix.job.os }}
     runs-on: ${{ matrix.job.os }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo build --release --package wasi-stub
       - run: cargo publish --dry-run --package wasi-stub
@@ -44,7 +44,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Download linux
         uses: actions/download-artifact@v8
         with:
@@ -86,7 +86,7 @@ jobs:
     permissions:
       id-token: write # Required for OIDC token exchange
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - uses: rust-lang/crates-io-auth-action@v1
         id: auth
