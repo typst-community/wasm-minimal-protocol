@@ -53,9 +53,23 @@ Their versions in [`ci.yml`](./.github/workflows/ci.yml) should be kept up to da
 Here are the notes for finding the latest versions:
 
 - `hello_c`: [Emscripten change log](https://github.com/emscripten-core/emscripten/blob/main/ChangeLog.md)
+
+  ![current version in ci.yaml](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fgithub.com%2Ftypst-community%2Fwasm-minimal-protocol%2Fraw%2Fmain%2F.github%2Fworkflows%2Fci.yml&query=%24.env.X_C_COMPILER_VERSION&label=current&logo=githubactions&labelColor=white) vs. ![GitHub Release](https://img.shields.io/github/v/release/emscripten-core/emscripten?logo=github) ![GitHub Release Date](https://img.shields.io/github/release-date/emscripten-core/emscripten?logo=github)
+
 - `hello_go`: [TinyGo releases](https://github.com/tinygo-org/tinygo/releases)
+
+  ![current version in ci.yaml](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fgithub.com%2Ftypst-community%2Fwasm-minimal-protocol%2Fraw%2Fmain%2F.github%2Fworkflows%2Fci.yml&query=%24.env.X_GO_COMPILER_VERSION&label=current&logo=githubactions&labelColor=white) vs. ![GitHub Release](https://img.shields.io/github/v/release/tinygo-org/tinygo?logo=github) ![GitHub Release Date](https://img.shields.io/github/release-date/tinygo-org/tinygo?logo=github)
+
 - `hello_zig`: [Zig downloads index](https://ziglang.org/download/)
+
+  ![current version in ci.yaml](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fgithub.com%2Ftypst-community%2Fwasm-minimal-protocol%2Fraw%2Fmain%2F.github%2Fworkflows%2Fci.yml&query=%24.env.X_ZIG_COMPILER_VERSION&label=current&logo=githubactions&labelColor=white) vs. ![latest version on ziglang.org](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fziglang.org%2Fdownload%2F&query=%2F%2F*%5B%40id%3D%22content%22%5D%2F%2Fh2%5B2%5D&logo=zig&label=version) ![date of the latest version on ziglang.org](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fziglang.org%2Fdownload%2F&query=%2F%2F*%5B%40id%3D%22content%22%5D%2F%2Fh2%5B2%5D%2Ffollowing-sibling%3A%3Aul%5B1%5D%2Fli%5B1%5D&logo=zig&label=date)
+
 - `hello_haskell`: [the default `$FLAVOUR` in `setup.sh`](https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta/-/blob/master/setup.sh?ref_type=heads#L5)
+
+  ![current version in ci.yaml](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fgithub.com%2Ftypst-community%2Fwasm-minimal-protocol%2Fraw%2Fmain%2F.github%2Fworkflows%2Fci.yml&query=%24.env.X_HASKELL_COMPILER_VERSION&label=current&logo=githubactions&labelColor=white) vs. ![flavour in setup.sh](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fgitlab.haskell.org%2Fhaskell-wasm%2Fghc-wasm-meta%2F-%2Fraw%2Fmaster%2Fsetup.sh&search=%7BFLAVOUR%3A-(%5Cd%2B%5C.%5Cd%2B)%7D&replace=%241&logo=haskell&label=flavour)
+
 - `hello_moonbit`: [MoonBit updates](https://www.moonbitlang.com/updates)
+
+  ![current version in ci.yaml](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fgithub.com%2Ftypst-community%2Fwasm-minimal-protocol%2Fraw%2Fmain%2F.github%2Fworkflows%2Fci.yml&query=%24.env.X_MOONBIT_COMPILER_VERSION&label=current&logo=githubactions&labelColor=white) vs. ![latest blog title](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fwww.moonbitlang.com%2Fupdates%2F&query=%2F%2Fmain%2Farticle%5B1%5D%2Fheader%2Fh2%2F%2Ftext()&label=title&logo=docusaurus)
 
 As for `hello_rust`, the Rust toolchain is quite stable. Therefore, we just specify `stable` and don't need to update it manually.
