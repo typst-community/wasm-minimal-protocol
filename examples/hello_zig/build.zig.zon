@@ -3,6 +3,12 @@
     .version = "0.0.0",
     .fingerprint = 0x3610a686f8eb3c6a, // This id should be regenerated after renaming (delete the field and run `zig build`).
     .minimum_zig_version = "0.16.0",
+    .dependencies = .{
+        .zbor = .{
+            .url = "git+https://codeberg.org/r4gus/zbor?ref=0.21.2#658c1c0ec607557b52d2e2a42acbfad31058ecee",
+            .hash = "zbor-0.21.2-kr-CoPF7AwAU2EqWqJzgxd1jHhpaaRBK0_c1LCgiwTbn",
+        },
+    },
     .paths = .{
         "build.zig",
         "build.zig.zon",

@@ -18,12 +18,20 @@ pub fn build(b: *std.Build) void {
     });
     const optimize = b.standardOptimizeOption(.{});
 
+    const zbor_dep = b.dependency("zbor", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
     const exe = b.addExecutable(.{
         .name = "hello",
         .root_module = b.createModule(.{
             .root_source_file = b.path("src/main.zig"),
             .target = target,
             .optimize = optimize,
+            .imports = &.{
+                .{ .name = "zbor", .module = zbor_dep.module("zbor") },
+            },
             .strip = true,
             .omit_frame_pointer = true,
             .unwind_tables = .none,

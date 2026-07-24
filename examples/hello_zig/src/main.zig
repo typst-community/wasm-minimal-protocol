@@ -3,6 +3,7 @@
 //!
 //! See https://typst.app/docs/reference/foundations/plugin/.
 const std = @import("std");
+const cbor = @import("zbor");
 const gpa = std.heap.wasm_allocator;
 
 pub const panic = std.debug.no_panic;
@@ -87,4 +88,42 @@ export fn returns_err() Retval {
 
 export fn will_panic() Retval {
     @panic("unconditional panic");
+}
+
+comptime {
+    @export(&struct {
+        fn func(len: usize) callconv(.c) Retval {
+            complexDataImpl(len) catch |err| {
+                sendResultToHost(@errorName(err));
+                return .failure;
+            };
+            return .success;
+        }
+    }.func, .{ .name = "complex_data" });
+}
+
+const ComplexDataArgs = struct {
+    x: i32,
+    y: f64,
+
+    pub fn cborParse(item: cbor.DataItem, o: cbor.Options) !ComplexDataArgs {
+        return cbor.parse(ComplexDataArgs, item, .{
+            .ignore_override = true,
+            .allocator = o.allocator,
+        });
+    }
+};
+
+fn complexDataImpl(len: usize) !void {
+    const buf = try gpa.alloc(u8, len);
+    defer gpa.free(buf);
+    writeArgsToBuffer(buf);
+
+    const data_item: cbor.DataItem = try .new(buf);
+    const args: ComplexDataArgs = try .cborParse(data_item, .{});
+
+    var result: std.Io.Writer.Allocating = .init(gpa);
+    defer result.deinit();
+    try cbor.stringify(args.x + args.y, .{}, &result.writer);
+    sendResultToHost(result.written());
 }
