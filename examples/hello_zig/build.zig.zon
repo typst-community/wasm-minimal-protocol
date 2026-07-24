@@ -1,0 +1,12 @@
+.{
+    .name = .hello,
+    .version = "0.0.0",
+    .fingerprint = 0x3610a686f8eb3c6a, // This id should be regenerated after renaming (delete the field and run `zig build`).
+    .minimum_zig_version = "0.16.0",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "README.md",
+    },
+}
