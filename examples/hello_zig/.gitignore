@@ -1,5 +1,6 @@
+.zig-cache/
+zig-out/
+zig-pkg/
+
 /hello.wasm
-/hello.wasm.o
-/hello-wasi.wasm
-/hello-wasi.wasm.o
 /hello.pdf
