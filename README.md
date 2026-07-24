@@ -43,7 +43,7 @@ See the example for your language:
 
 - [Rust](./examples/hello_rust/) 🌟
 - [C](./examples/hello_c/)
-- [Zig](./examples/hello_zig/)
+- [Zig](./examples/hello_zig/) 🌟
 - [Go](./examples/hello_go/) 🌟
 - [Haskell](./examples/hello_haskell/)
 - [MoonBit](./examples/hello_moonbit/)

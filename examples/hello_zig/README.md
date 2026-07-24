@@ -1,38 +1,31 @@
-# Zig wasm plugin example
+# Zig Wasm plugin example
 
-This is a bare-bones Typst plugin, written in Zig.
+![minimum Zig version](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftypst-community%2Fwasm-minimal-protocol%2Frefs%2Fheads%2Fmain%2Fexamples%2Fhello_zig%2Fbuild.zig.zon&search=%5C.%5Cs*minimum_zig_version%5Cs*%3D%5Cs*%22(%5B%5E%22%5D%2B)&replace=%241&logo=zig&label=minimum%20Zig%20version&labelColor=white)
+
+This is a bare-bones Typst plugin, written in [Zig](https://ziglang.org/).
 
 ## Compile
 
-To compile this example, you need the [zig compiler](https://ziglang.org/learn/getting-started/#installing-zig). Then, run the command
+To compile this example, you need to first [install the minimum required Zig version](https://ziglang.org/learn/getting-started/).
+
+> [!Important]
+> This example may not build using other versions of Zig, as it introduces breaking changes in every release. You can grab the Zig release binaries from the Zig [Download](https://ziglang.org/download/) page.
+
+Then, build this package with:
 
 ```sh
-zig build-exe hello.zig -target wasm32-freestanding -fno-entry -O ReleaseSmall \
-    --export=hello \
-    --export=double_it \
-    --export=concatenate \
-    --export=shuffle \
-    --export=returns_ok \
-    --export=returns_err \
-    --export=will_panic
+zig build -p . -Doptimize=ReleaseSmall
 ```
 
-## Compile with wasi
+## Compile with WASI
 
 If you want to build with WASI, use the `wasm32-wasi` target:
 
 ```sh
-zig build-exe hello.zig -target wasm32-wasi -fno-entry -O ReleaseSmall \
-    --export=hello \
-    --export=double_it \
-    --export=concatenate \
-    --export=shuffle \
-    --export=returns_ok \
-    --export=returns_err \
-    --export=will_panic
+zig build -p . -Dtarget=wasm32-wasi -Doptimize=ReleaseSmall
 ```
 
-Then, stub the resulting binary:
+Then, stub the Wasm binary with:
 
 ```sh
 wasi-stub hello.wasm -o hello.wasm
