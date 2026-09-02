@@ -22,7 +22,7 @@ If `$CARGO_TEST_SAVE_EXAMPLE_RESULT` is set to any non-empty string, the resulti
 > At present, the tests are guaranteed to pass only on Linux.
 >
 > - macOS should work in theory but has not been tested.
-> - Windows is unlikely to work. Some compilers do not support Windows, and some tests assume file permissions behave like on Linux.
+> - Windows works partially. Some compilers do not support Windows, but tests for other compilers should pass.
 >
 > Feedback and contributions for macOS and Windows are welcome!
 

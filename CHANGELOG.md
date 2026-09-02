@@ -57,6 +57,7 @@ All dates in this file are in UTC.
 #### Fixed
 - `*.tar.gz` for macOS/Linux published to GitHub Releases are now correctly gzipped; files in previous releases have been manually renamed to `*.tar` to match their actual contents (#63).
 - Use the official abbreviations, [Wasm](https://webassembly.org) and [WASI](https://wasi.dev), in error and help messages (#83).
+- Update the permissions of the resulting binary properly, ensuring compatibility with Windows (#85 and #86).
 
 ### [0.3.0] - 2026-03-06
 
