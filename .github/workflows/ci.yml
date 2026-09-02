@@ -3,12 +3,12 @@ name: Check
 env:
   # These env vars are only used for writing this workflow and will not be directly read by programs.
   # To avoid conflicts, we add the `X_` prefix.
-  X_C_COMPILER_VERSION: 6.0.3
+  X_C_COMPILER_VERSION: 6.0.9
   X_C_CACHE_FOLDER: "emsdk-cache"
-  X_GO_COMPILER_VERSION: 0.41.1
+  X_GO_COMPILER_VERSION: 0.42.0
   X_ZIG_COMPILER_VERSION: 0.16.0
   X_HASKELL_COMPILER_VERSION: "9.14"
-  X_MOONBIT_COMPILER_VERSION: 0.10.4+2cc641edf
+  X_MOONBIT_COMPILER_VERSION: 0.10.11+6ff76a5f9
 
 on:
   push:
@@ -47,6 +47,7 @@ jobs:
           fi
           sudo dpkg -i tinygo_${{env.X_GO_COMPILER_VERSION}}_amd64.deb
           export PATH=$PATH:/usr/local/bin
+          tinygo version
 
       - name: Install Zig for hello_zig
         uses: mlugg/setup-zig@v2

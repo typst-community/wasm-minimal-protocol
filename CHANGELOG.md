@@ -51,7 +51,8 @@ All dates in this file are in UTC.
 ### [Unreleased]
 
 #### Changed
-- Update dependencies 219 → 245 and the Rust edition 2021 → 2024 (#64).
+- Update wasm-tools dependencies 219 → 258 (#64, #84).
+- Update the Rust edition 2021 → 2024 (#64).
 
 #### Fixed
 - `*.tar.gz` for macOS/Linux published to GitHub Releases are now correctly gzipped; files in previous releases have been manually renamed to `*.tar` to match their actual contents (#63).

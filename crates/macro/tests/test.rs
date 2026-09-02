@@ -2,10 +2,21 @@ use regex::Regex;
 use semver::Version;
 use std::{
     path::{Path, PathBuf},
-    process::Command,
+    process::{Command, Output},
     sync::LazyLock,
 };
 use which::{which, which_re};
+
+fn assert_success(task_name: &str, output: &Output) {
+    if !output.status.success() {
+        panic!(
+            "{task_name} failed with {}:\nstdout: {}\nstderr: {}",
+            output.status,
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+}
 
 fn wasi_stub_with_args(path: PathBuf, extra_args: &[&str]) {
     let path = path.canonicalize().unwrap();
@@ -18,11 +29,9 @@ fn wasi_stub_with_args(path: PathBuf, extra_args: &[&str]) {
         .arg("-o")
         .arg(&path)
         .current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/../wasi-stub"))
-        .status()
+        .output()
         .unwrap();
-    if !wasi_stub.success() {
-        panic!("wasi-stub failed");
-    }
+    assert_success("wasi-stub", &wasi_stub);
 }
 
 fn wasi_stub(path: PathBuf) {
@@ -41,9 +50,10 @@ fn typst_compile(path: &Path) {
             )
             .map(|executable| {
                 let typst_version = Command::new(&executable).arg("--version").output().unwrap();
-                if !typst_version.status.success() {
-                    panic!("{executable:?} --version failed");
-                }
+                assert_success(
+                    format!("{executable:?} --version failed").as_str(),
+                    &typst_version,
+                );
                 let version_output = match String::from_utf8(typst_version.stdout) {
                     Ok(s) => s,
                     Err(err) => panic!("failed to parse typst version: {err}"),
@@ -147,11 +157,9 @@ fn test_c() {
         .arg("hello.wasm")
         .arg("hello.c")
         .current_dir(dir_path)
-        .status()
+        .output()
         .unwrap();
-    if !build_c.success() {
-        panic!("Compiling with emcc failed");
-    }
+    assert_success("Compiling with emcc", &build_c);
     wasi_stub(dir_path.join("hello.wasm"));
     typst_compile(dir_path);
     save_result(dir_path, "c");
@@ -171,11 +179,9 @@ fn test_rust() {
             .arg("--target")
             .arg(target)
             .current_dir(dir_path)
-            .status()
+            .output()
             .unwrap();
-        if !build_rust.success() {
-            panic!("Compiling with cargo failed");
-        }
+        assert_success("Compiling with cargo", &build_rust);
         std::fs::copy(
             dir_path
                 .join("target")
@@ -207,11 +213,9 @@ fn test_zig() {
             .arg(format!("-Dtarget={}", target))
             .arg("-Doptimize=ReleaseSmall")
             .current_dir(dir_path)
-            .status()
+            .output()
             .unwrap();
-        if !build_zig.success() {
-            panic!("Compiling with zig failed");
-        }
+        assert_success("Compiling with zig", &build_zig);
         if target == "wasm32-wasi" {
             wasi_stub(dir_path.join("hello.wasm"));
         }
@@ -233,11 +237,9 @@ fn test_go() {
         .arg("-o")
         .arg("hello.wasm")
         .current_dir(dir_path)
-        .status()
+        .output()
         .unwrap();
-    if !build_go.success() {
-        panic!("Compiling with tinygo for wasm-unknown failed");
-    }
+    assert_success("Compiling with tinygo for wasm-unknown", &build_go);
     typst_compile(dir_path);
     save_result(dir_path, "go.wasm-unknown");
 
@@ -248,11 +250,9 @@ fn test_go() {
         .env("GOOS", "wasip1")
         .env("GOARCH", "wasm")
         .current_dir(dir_path)
-        .status()
+        .output()
         .unwrap();
-    if !build_go_wasi.success() {
-        panic!("Compiling with tinygo for wasip1 failed");
-    }
+    assert_success("Compiling with tinygo for wasip1", &build_go_wasi);
     wasi_stub(dir_path.join("hello.wasm"));
     typst_compile(dir_path);
     save_result(dir_path, "go.wasm-wasip1");
@@ -296,11 +296,9 @@ fn test_haskell() {
         .arg("hello.wasm")
         .arg(format!("-optl-Wl,{export_flags}"))
         .current_dir(dir_path)
-        .status()
+        .output()
         .unwrap();
-    if !build_haskell.success() {
-        panic!("Compiling with GHC WebAssembly backend failed");
-    }
+    assert_success("Compiling with GHC WebAssembly backend", &build_haskell);
     wasi_stub_with_args(dir_path.join("hello.wasm"), &["--return-value", "0"]);
     typst_compile(dir_path);
     save_result(dir_path, "haskell");
@@ -319,11 +317,9 @@ fn test_moonbit() {
         .arg("wasm")
         .arg("--release")
         .current_dir(dir_path)
-        .status()
+        .output()
         .unwrap();
-    if !build_moonbit.success() {
-        panic!("Compiling with moon failed");
-    }
+    assert_success("Compiling with moon", &build_moonbit);
     std::fs::copy(
         dir_path.join("_build/wasm/release/build/hello.wasm"),
         dir_path.join("hello.wasm"),
