@@ -49,7 +49,10 @@ fn write_output(path: PathBuf, output_path: Option<PathBuf>, output: Vec<u8>) ->
         }
     };
     std::fs::write(&output_path, output)?;
-    let permissions = std::fs::File::open(path)?.metadata()?.permissions();
-    std::fs::File::open(output_path)?.set_permissions(permissions)?;
+    // Not through a File handle: `File::open` asks for read access, and
+    // Windows refuses to change permissions through a handle that does not
+    // hold write access, failing with "Access is denied" (os error 5).
+    let permissions = std::fs::metadata(&path)?.permissions();
+    std::fs::set_permissions(&output_path, permissions)?;
     Ok(())
 }
