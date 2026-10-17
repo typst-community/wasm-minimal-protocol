@@ -3,12 +3,12 @@ name: Check
 env:
   # These env vars are only used for writing this workflow and will not be directly read by programs.
   # To avoid conflicts, we add the `X_` prefix.
-  X_C_COMPILER_VERSION: 6.0.11
+  X_C_COMPILER_VERSION: 6.0.12
   X_C_CACHE_FOLDER: "emsdk-cache"
-  X_GO_COMPILER_VERSION: 0.42.0
+  X_GO_COMPILER_VERSION: 0.43.0
   X_ZIG_COMPILER_VERSION: 0.17.0 # Sync this with `minimum_zig_version` in `build.zig.zon`.
   X_HASKELL_COMPILER_VERSION: "9.14"
-  X_MOONBIT_COMPILER_VERSION: 0.10.14+7d59c7ec9
+  X_MOONBIT_COMPILER_VERSION: 0.10.15+943464bfa
 
 on:
   push:

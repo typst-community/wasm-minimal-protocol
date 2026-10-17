@@ -249,6 +249,7 @@ fn test_go() {
         .arg("build")
         .arg("-o")
         .arg("hello.wasm")
+        .arg("-scheduler=none")
         .env("GOOS", "wasip1")
         .env("GOARCH", "wasm")
         .current_dir(dir_path)
