@@ -182,9 +182,9 @@ pub fn stub_wasi_functions(
                     FuncKind::Inline { expression, .. } => {
                         for inst in expression.instrs.as_mut().iter_mut() {
                             match inst {
-                                Instruction::RefFunc(Index::Num(index, _))
-                                | Instruction::ReturnCall(Index::Num(index, _))
-                                | Instruction::Call(Index::Num(index, _)) => {
+                                Instruction::ref_func(Index::Num(index, _))
+                                | Instruction::return_call(Index::Num(index, _))
+                                | Instruction::call(Index::Num(index, _)) => {
                                     if let Some(new_index) = new_import_indices.get(*index as usize)
                                     {
                                         // The relationship between the old `index` and the `new_index` is guaranteed by the moves below.
@@ -263,12 +263,12 @@ impl<'a> ToStub<'a> {
             .map(|val_type| {
                 // Return the weird value as the expected type.
                 let instruction = match val_type {
-                    ValType::I32 => Instruction::I32Const(return_value as i32),
-                    ValType::I64 => Instruction::I64Const(return_value as i64),
-                    ValType::F32 => Instruction::F32Const(wast::token::F32 {
+                    ValType::I32 => Instruction::i32_const(return_value as i32),
+                    ValType::I64 => Instruction::i64_const(return_value as i64),
+                    ValType::F32 => Instruction::f32_const(wast::token::F32 {
                         bits: (return_value as f32).to_bits(),
                     }),
-                    ValType::F64 => Instruction::F64Const(wast::token::F64 {
+                    ValType::F64 => Instruction::f64_const(wast::token::F64 {
                         bits: (return_value as f64).to_bits(),
                     }),
                     _ => {

@@ -62,6 +62,8 @@ This is a docs-only update. For example, the links to examples now point to GitH
 
   The stubbed Wasm should be byte-for-byte identical to previous versions.
 
+- chore(wasi-stub): update wasm-tools dependencies 258 → 263 (#94).
+
 ### [0.3.1] - 2026-09-03
 
 #### Changed
