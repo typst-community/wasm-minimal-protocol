@@ -62,7 +62,7 @@ Here are the notes for finding the latest versions:
 
 - `hello_zig`: [Zig downloads index](https://ziglang.org/download/)
 
-  ![current version in ci.yaml](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fgithub.com%2Ftypst-community%2Fwasm-minimal-protocol%2Fraw%2Fmain%2F.github%2Fworkflows%2Fci.yml&query=%24.env.X_ZIG_COMPILER_VERSION&label=current&logo=githubactions&labelColor=white) vs. ![latest version on ziglang.org](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fziglang.org%2Fdownload%2F&query=%2F%2F*%5B%40id%3D%22content%22%5D%2F%2Fh2%5B2%5D&logo=zig&label=version) ![date of the latest version on ziglang.org](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fziglang.org%2Fdownload%2F&query=%2F%2F*%5B%40id%3D%22content%22%5D%2F%2Fh2%5B2%5D%2Ffollowing-sibling%3A%3Aul%5B1%5D%2Fli%5B1%5D&logo=zig&label=date)
+  ![current version in ci.yaml](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fgithub.com%2Ftypst-community%2Fwasm-minimal-protocol%2Fraw%2Fmain%2F.github%2Fworkflows%2Fci.yml&query=%24.env.X_ZIG_COMPILER_VERSION&label=current&logo=githubactions&labelColor=white) vs. ![latest packaged version known to repology](https://repology.org/badge/latest-versions/zig.svg) ![date of the latest version on ziglang.org](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fziglang.org%2Fdownload%2F&query=%2F%2F*%5B%40id%3D%22releases%22%5D%2Ffollowing-sibling%3A%3Adiv%5B1%5D%2F%2Ful%5B1%5D%2Fli%5B1%5D&logo=zig&label=date)
 
 - `hello_haskell`: [the default `$FLAVOUR` in `setup.sh`](https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta/-/blob/master/setup.sh?ref_type=heads#L5)
 
