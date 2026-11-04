@@ -23,6 +23,12 @@ All dates in this file are in UTC.
 
 ### [Unreleased]
 
+#### Fixed
+
+- Allow unreachable code in generated functions (#96).
+
+  The `#[wasm_func]` macro generates an unreachable (but harmless) `match` arm if the annotated function does not return a `Result`. This has become a warning for nightly toolchains after `nightly-2026-08-25`. Now the warning is suppressed.
+
 ### [0.2.1] - 2026-09-03
 
 This is a docs-only update. For example, the links to examples now point to GitHub correctly on [docs.rs](https://docs.rs/wasm-minimal-protocol/latest/wasm_minimal_protocol/).

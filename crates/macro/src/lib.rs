@@ -241,7 +241,6 @@ pub fn wasm_func(_: TokenStream, item: TokenStream) -> TokenStream {
     } else {
         result.extend(quote!(
             #[export_name = #export_name]
-            #[allow(unreachable_code)]
             #vis_marker extern "C" fn #inner_name(#(#p_len: usize),*) -> i32 {
                 #get_unsplit_params
                 #set_args
@@ -251,6 +250,7 @@ pub fn wasm_func(_: TokenStream, item: TokenStream) -> TokenStream {
                 let err_vec: Vec<u8>;
                 let (message, code) = match result {
                     Ok(ref s) => (s.as_ref(), 0),
+                    #[allow(unreachable_code, reason = "err would be Infallible if the annotated function did not return a Result")]
                     Err(err) => {
                         err_vec = err.to_string().into_bytes();
                         (err_vec.as_slice(), 1)
