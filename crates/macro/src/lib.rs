@@ -241,6 +241,7 @@ pub fn wasm_func(_: TokenStream, item: TokenStream) -> TokenStream {
     } else {
         result.extend(quote!(
             #[export_name = #export_name]
+            #[allow(unreachable_code)]
             #vis_marker extern "C" fn #inner_name(#(#p_len: usize),*) -> i32 {
                 #get_unsplit_params
                 #set_args
