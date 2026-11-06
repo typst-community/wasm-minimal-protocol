@@ -6,10 +6,10 @@ env:
   X_C_COMPILER_VERSION: 6.0.13
   X_C_CACHE_FOLDER: "emsdk-cache"
   X_GO_COMPILER_VERSION: 0.44.0
-  X_ZIG_COMPILER_VERSION: 0.17.0 # Sync this with `minimum_zig_version` in `build.zig.zon`.
+  X_ZIG_COMPILER_VERSION: 0.17.1 # Sync this with `minimum_zig_version` in `build.zig.zon` if necessary.
   X_HASKELL_COMPILER_VERSION: "9.14"
   # ↓ Also save the version date for future reference, because MoonBit does not seem to publish its full version history.
-  X_MOONBIT_COMPILER_VERSION: 0.10.17+d971670cd # 2026-10-23
+  X_MOONBIT_COMPILER_VERSION: 0.10.19+bee578715 # 2026-11-02
 
 on:
   push:
