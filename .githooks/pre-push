@@ -8,6 +8,7 @@
 # 2. That the formatting is correct
 # 3. That the documentation builds
 # 4. That the tests pass
+# 5. That the hello_rust example compiles with the beta toolchain (the tests only cover the stable channel)
 
 set -e
 
@@ -28,3 +29,4 @@ cargo fmt --all --check
 cargo clippy --all-targets -- --deny warnings
 RUSTDOCFLAGS="--deny warnings" cargo doc --document-private-items --no-deps
 cargo test
+CARGO_BUILD_WARNINGS=deny cargo +beta build --target wasm32-unknown-unknown --manifest-path examples/hello_rust/Cargo.toml

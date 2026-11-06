@@ -250,6 +250,7 @@ pub fn wasm_func(_: TokenStream, item: TokenStream) -> TokenStream {
                 let err_vec: Vec<u8>;
                 let (message, code) = match result {
                     Ok(ref s) => (s.as_ref(), 0),
+                    #[allow(unreachable_code, reason = "err would be Infallible if the annotated function did not return a Result")]
                     Err(err) => {
                         err_vec = err.to_string().into_bytes();
                         (err_vec.as_slice(), 1)

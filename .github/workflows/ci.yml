@@ -86,6 +86,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown, wasm32-wasip1
+      - name: Also install the beta Rust toolchain
+        run: |
+          rustup install beta --target wasm32-unknown-unknown
       - name: Cache Rust
         uses: actions/cache@v6
         with:
