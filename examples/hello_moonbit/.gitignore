@@ -1,4 +1,5 @@
 _build/
 .mooncakes/
 .moonagent/
-hello.wasm
+/hello.wasm
+/hello.pdf
