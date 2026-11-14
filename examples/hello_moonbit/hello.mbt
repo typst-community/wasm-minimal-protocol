@@ -2,15 +2,15 @@
 // Don't edit this part unless you know what you are doing.
 
 ///|
-fn __send_result_to_host(ptr : Int, len : Int) = "typst_env" "wasm_minimal_protocol_send_result_to_host"
+fn __send_result_to_host(ptr : Int32, len : Int32) = "typst_env" "wasm_minimal_protocol_send_result_to_host"
 
 ///|
-fn __write_args_to_buffer(ptr : Int) = "typst_env" "wasm_minimal_protocol_write_args_to_buffer"
+fn __write_args_to_buffer(ptr : Int32) = "typst_env" "wasm_minimal_protocol_write_args_to_buffer"
 
 ///|
 /// Returns a raw pointer to the first data byte of `bytes`.
 #borrow(bytes)
-fn _as_ptr(bytes : Bytes) -> Int = "%identity"
+fn _as_ptr(bytes : Bytes) -> Int32 = "%identity"
 // Note that the ABI for `Bytes` is unstable. Refer to README for further explanation.
 
 ///|
@@ -39,13 +39,13 @@ fn write_args(arr : FixedArray[Byte]) -> Unit {
 // Part 2: Implement your own plugin below.
 
 ///|
-pub fn hello() -> Int {
+pub fn hello() -> Int32 {
   send_result(b"Hello from Wasm!!!")
   0
 }
 
 ///|
-pub fn double_it(arg1_len : Int) -> Int {
+pub fn double_it(arg1_len : Int32) -> Int32 {
   let result = FixedArray::make(arg1_len * 2, b'\x00')
   write_args(result)
   result.blit_to(result, len=arg1_len, dst_offset=arg1_len)
@@ -54,7 +54,7 @@ pub fn double_it(arg1_len : Int) -> Int {
 }
 
 ///|
-pub fn concatenate(arg1_len : Int, arg2_len : Int) -> Int {
+pub fn concatenate(arg1_len : Int32, arg2_len : Int32) -> Int32 {
   let args = FixedArray::make(arg1_len + arg2_len, b'\x00')
   write_args(args)
 
@@ -73,7 +73,7 @@ pub fn concatenate(arg1_len : Int, arg2_len : Int) -> Int {
 }
 
 ///|
-pub fn shuffle(arg1_len : Int, arg2_len : Int, arg3_len : Int) -> Int {
+pub fn shuffle(arg1_len : Int32, arg2_len : Int32, arg3_len : Int32) -> Int32 {
   let total_len = arg1_len + arg2_len + arg3_len
   let args = FixedArray::make(total_len, b'\x00')
   write_args(args)
@@ -107,18 +107,18 @@ pub fn shuffle(arg1_len : Int, arg2_len : Int, arg3_len : Int) -> Int {
 }
 
 ///|
-pub fn returns_ok() -> Int {
+pub fn returns_ok() -> Int32 {
   send_result(b"This is an `Ok`")
   0
 }
 
 ///|
-pub fn returns_err() -> Int {
+pub fn returns_err() -> Int32 {
   send_result(b"This is an `Err`")
   1
 }
 
 ///|
-pub fn will_panic() -> Int {
+pub fn will_panic() -> Int32 {
   panic()
 }
